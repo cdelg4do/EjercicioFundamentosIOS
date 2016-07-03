@@ -15,7 +15,55 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
-        // Override point for customization after application launch.
+        
+        // Modelo hardcodeado
+        
+        var libro1 = CDABook(title: "Libro 1",
+                             authors: ["Autor1", "Autor2"],
+                             tags: [CDABookTag(name: "tag1"), CDABookTag(name: "tag2")],
+                             portrait: UIImage(),
+                             pdfUrl: NSURL(fileURLWithPath: "path1"))
+        
+        var libro2 = CDABook(title: "Libro 2",
+                             authors: ["Autor3", "Autor4", "Autor5"],
+                             tags: [CDABookTag(name: "tag3"), CDABookTag(name: "tag4")],
+                             portrait: UIImage(),
+                             pdfUrl: NSURL(fileURLWithPath: "path2"))
+        
+        var libro3 = CDABook(title: "Libro 3",
+                             authors: ["Autor1", "Autor6"],
+                             tags: [CDABookTag(name: "tag1"), CDABookTag(name: "tag3")],
+                             portrait: UIImage(),
+                             pdfUrl: NSURL(fileURLWithPath: "path3"))
+        
+        var libro4 = CDABook(title: "Libro 4",
+                             authors: ["Autor7"],
+                             tags: [CDABookTag(name: "tag5"), CDABookTag(name: "tag6")],
+                             portrait: UIImage(),
+                             pdfUrl: NSURL(fileURLWithPath: "path4"))
+        
+        var libro5 = CDABook(title: "Libro 5",
+                             authors: ["Autor3", "Autor4", "Autor5"],
+                             tags: [CDABookTag(name: "tag2"), CDABookTag(name: "tag4")],
+                             portrait: UIImage(),
+                             pdfUrl: NSURL(fileURLWithPath: "path5"))
+        
+        var libro6 = CDABook(title: "Estoy en todas partes",
+                             authors: ["Autor4"],
+                             tags: [CDABookTag(name: "tag1"), CDABookTag(name: "tag2"), CDABookTag(name: "tag3"), CDABookTag(name: "tag4"), CDABookTag(name: "tag5"), CDABookTag(name: "tag6")],
+                             portrait: UIImage(),
+                             pdfUrl: NSURL(fileURLWithPath: "path6"))
+        
+        libro6.isFavorite = true
+        
+        
+        var listaLibros = [libro6, libro5, libro4, libro1, libro3, libro2]
+        
+        var libreria = CDALibrary(books: listaLibros)
+        
+        libreria.printLibraryContents()
+        
+        
         return true
     }
 

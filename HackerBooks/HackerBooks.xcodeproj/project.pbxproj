@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		07A3ECBB1D28B82000D53749 /* CDABook.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A3ECBA1D28B82000D53749 /* CDABook.swift */; };
+		07A3ECBD1D28BCA300D53749 /* CDABookTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A3ECBC1D28BCA300D53749 /* CDABookTag.swift */; };
+		07A3ECC11D28CFFF00D53749 /* CDALibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A3ECC01D28CFFF00D53749 /* CDALibrary.swift */; };
 		07FF1AF91D28AAC60050CF94 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FF1AF81D28AAC60050CF94 /* AppDelegate.swift */; };
 		07FF1B001D28AAC60050CF94 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 07FF1AFF1D28AAC60050CF94 /* Assets.xcassets */; };
 		07FF1B031D28AAC60050CF94 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 07FF1B011D28AAC60050CF94 /* LaunchScreen.storyboard */; };
@@ -32,6 +35,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		07A3ECBA1D28B82000D53749 /* CDABook.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDABook.swift; sourceTree = "<group>"; };
+		07A3ECBC1D28BCA300D53749 /* CDABookTag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDABookTag.swift; sourceTree = "<group>"; };
+		07A3ECC01D28CFFF00D53749 /* CDALibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDALibrary.swift; sourceTree = "<group>"; };
 		07FF1AF51D28AAC60050CF94 /* HackerBooks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HackerBooks.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		07FF1AF81D28AAC60050CF94 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		07FF1AFF1D28AAC60050CF94 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -135,12 +141,31 @@
 		07FF1B2A1D28AB7D0050CF94 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				07FF1B2C1D28B2C90050CF94 /* Controllers */,
+				07FF1B2B1D28B2B40050CF94 /* Models */,
 				07FF1AF81D28AAC60050CF94 /* AppDelegate.swift */,
 				07FF1AFF1D28AAC60050CF94 /* Assets.xcassets */,
 				07FF1B011D28AAC60050CF94 /* LaunchScreen.storyboard */,
 				07FF1B041D28AAC60050CF94 /* Info.plist */,
 			);
 			name = App;
+			sourceTree = "<group>";
+		};
+		07FF1B2B1D28B2B40050CF94 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				07A3ECBA1D28B82000D53749 /* CDABook.swift */,
+				07A3ECBC1D28BCA300D53749 /* CDABookTag.swift */,
+				07A3ECC01D28CFFF00D53749 /* CDALibrary.swift */,
+			);
+			name = Models;
+			sourceTree = "<group>";
+		};
+		07FF1B2C1D28B2C90050CF94 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Controllers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -211,6 +236,7 @@
 				TargetAttributes = {
 					07FF1AF41D28AAC60050CF94 = {
 						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = G28A65M86E;
 					};
 					07FF1B081D28AAC60050CF94 = {
 						CreatedOnToolsVersion = 7.3.1;
@@ -273,7 +299,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				07A3ECC11D28CFFF00D53749 /* CDALibrary.swift in Sources */,
+				07A3ECBD1D28BCA300D53749 /* CDABookTag.swift in Sources */,
 				07FF1AF91D28AAC60050CF94 /* AppDelegate.swift in Sources */,
+				07A3ECBB1D28B82000D53749 /* CDABook.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -409,6 +438,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = HackerBooks/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cdelgado.HackerBooks;
@@ -420,6 +450,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = HackerBooks/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cdelgado.HackerBooks;
@@ -492,6 +523,7 @@
 				07FF1B1F1D28AAC70050CF94 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		07FF1B201D28AAC70050CF94 /* Build configuration list for PBXNativeTarget "HackerBooksTests" */ = {
 			isa = XCConfigurationList;
@@ -500,6 +532,7 @@
 				07FF1B221D28AAC70050CF94 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		07FF1B231D28AAC70050CF94 /* Build configuration list for PBXNativeTarget "HackerBooksUITests" */ = {
 			isa = XCConfigurationList;
@@ -508,6 +541,7 @@
 				07FF1B251D28AAC70050CF94 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
