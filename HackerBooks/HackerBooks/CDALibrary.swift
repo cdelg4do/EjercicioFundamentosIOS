@@ -12,13 +12,21 @@ import UIKit
 
 class CDALibrary {
     
-    typealias tagNamesList = [String]
-    typealias BookList = [CDABook]
-    typealias BookCatalog = [CDABookTag : BookList]
+    // Alias para tipos compuestos
     
+    typealias TagList = [CDABookTag]
+    typealias CategoryIndex = [CDABookTag : Int]
+    typealias BookList = [CDABook]
+    typealias BookCatalog = [BookList]
+    
+    
+    // Propiedades de la biblioteca
+    
+    var sections: CategoryIndex = CategoryIndex()
     var library: BookCatalog = BookCatalog()
     
     
+    // Inicializador designado de la clase
     
     init(books: BookList) {
         
@@ -26,83 +34,280 @@ class CDALibrary {
         var tagSet = Set<String>()
         for b in books {
             for tag in b.tags {
-                tagSet.insert(tag.name)
+                tagSet.insert(normalizeTagName(tag.name))
             }
         }
         
-        // Volcar el contenido del set en un array, para su posterior ordenación
-        var tagList = tagNamesList()
-        for t in tagSet {
-            tagList.append(t)
-        }
-        
-        // Construir el catalogo de libros vacío, incluyendo al tag de Favoritos en primer lugar
-        // y a continuación el resto de tags, ordenados alfabéticamente
-        library = createEmptyLibrary(tagList.sort())
-        
-        
-        // Por último, incorporar los libros al catálogo, en orden alfabético
-        populateLibrary(books.sort())
-    }
-    
-    
-    // Función que construye un catálogo de libros vacío, solo con las tags
-    
-    func createEmptyLibrary(existingTags: tagNamesList) -> BookCatalog {
-        
-        var c = BookCatalog()
-        
-        // Siempre debe existir un tag para los favoritos del usuario, en primer lugar
-        print("Creando tag de favoritos")
-        let favTag = CDABookTag.getFavTag()
-        c[favTag] = BookList()
-        
-        // Posteriormente se añaden todos los demás tags que se indican
-        for tagName in existingTags {
-            print("Creando tag '\(tagName)'")
+        // Volcar el contenido del set en un array de tags, para su posterior ordenación
+        var tagList = TagList()
+        for tagName in tagSet {
             let newTag = CDABookTag(name: tagName)
-            c[newTag] = BookList()
+            tagList.append(newTag)
         }
         
-        return c
+        
+        // Construir el indice de secciones a partir de los tags obtenidos
+        sections = createCategoryIndex(withTags: tagList)
+        
+        
+        // Por último, incorporar los libros al catálogo
+        library = populateLibrary(withBooks: books)
     }
     
     
-    // Función que rellena con una lista de libros una librería previamente creada
     
-    func populateLibrary(books: BookList) {
+    // FUNCIONES DE CONFIGURACIÓN INICIAL DE LA BIBLIOTECA
+    
+    
+    // Función que crea el índice ordenado de categorías, a partir de una lista de tags
+    
+    func createCategoryIndex(withTags tags: TagList) -> CategoryIndex {
         
-        // Para cada libro de la lista, lo añadimos a la sección de cada uno de sus tags.
+        var index = CategoryIndex()
+        
+        // La categoría de favoritos, siempre en primer lugar
+        index[CDABookTag.getFavTag()] = 0
+        
+        // El resto de categorías a continuación, por orden alfabético
+        var i = 1
+        for tag in tags.sort() {
+            
+            index[tag] = i
+            i += 1
+        }
+        
+        return index
+    }
+    
+    
+    // Función que rellena un catalogo con una lista de libros
+    
+    func populateLibrary(withBooks books: BookList) -> BookCatalog {
+        
+        var lib = BookCatalog()
+        
+        
+        // Creamos un bookCatalog con el número de secciones necesarias (todas vacías)
+        var sectionNum: Int = 0
+        while sectionNum < sectionCount {
+            
+            lib.append(BookList())
+            sectionNum += 1
+        }
+        
+        
+        // Añadimos cada libro por orden alfabético a las secciones correspondientes a sus tags.
         // Si además está marcado como favorito, lo añadimos a la sección de favoritos.
-        for book in books {
+        
+        for book in books.sort() {
             
             for tag in book.tags {
                 
-                library[tag]?.append(book)
+                sectionNum = sectionPos(forTag: tag)
+                
+                if sectionNum < 0 {
+                    print("\n** Error ** : Section position for tag '\(tag)' could not be retreived!\n")
+                }
+                else {
+                    lib[sectionNum].append(book)
+                }
             }
             
             if book.isFavorite {
-                library[CDABookTag.getFavTag()]?.append(book)
+                sectionNum = sectionPos(forTag: CDABookTag.getFavTag())
+                lib[sectionNum].append(book)
             }
+        }
+        
+        return lib
+    }
+    
+    
+    // Función que normaliza una cadena de texto para el nombre de un tag
+    // (convirtitiéndola a todo minúsculas)
+    
+    func normalizeTagName(name: String) -> String {
+        
+        return name.lowercaseString
+    }
+    
+    
+    
+    // FUNCIONES AUXILIARES PARA ACCEDER AL CONTENIDO DE LA BIBLIOTECA
+    
+    
+    // Función que obtiene la posición de una seccion correspondiente al tag indicado
+    // Si el tag indicado no existe en el índice de secciones, devuelve -1
+    
+    func sectionPos(forTag tag: CDABookTag) -> Int {
+        
+        guard let pos = sections[tag] else {
+            return -1
+        }
+        
+        return pos
+    }
+    
+    
+    // Función que obtiene la tag correspondiente a un número de sección
+    
+    func getTag(atSectionPos position: Int) -> CDABookTag? {
+        
+        for (tag, pos) in sections {
+            
+            if pos == position {
+                return tag
+            }
+        }
+        
+        return nil
+    }
+    
+    
+    // Variable que indica el número de secciones existentes
+    // (incluyendo la de libros favoritos)
+    
+    var sectionCount: Int {
+        
+        get {
+            return sections.count
         }
     }
     
+    
+    // Función que obtiene el número de libros existentes en una sección determinada
+    
+    func bookCount(forSectionPos pos: Int) -> Int {
+        
+        if pos < 0 || pos >= sections.count {
+            return 0
+        }
+        
+        return library[pos].count
+    }
+    
+    
+    // Función que obtiene el número de libros existentes para un tag determinado
+    
+    func bookCount(forTag tag: CDABookTag) -> Int {
+        
+        let pos = sectionPos(forTag: tag)
+        
+        if pos < 0 {
+            return 0
+        }
+        else {
+            return bookCount(forSectionPos: pos)
+        }
+    }
+    
+    
+    // Función que obtiene el listado de libros de una sección determinada
+    
+    func books(forSectionPos pos: Int) -> BookList {
+        
+        if pos < 0 || pos >= sections.count {
+            
+            return BookList()
+        }
+        
+        return library[pos]
+    }
+    
+    
+    // Función que obtiene el listado de libros para un tag determinado
+    
+    func books(forTag tag: CDABookTag) -> BookList {
+        
+        let pos = sectionPos(forTag: tag)
+        
+        if pos < 0 {
+            return BookList()
+        }
+        
+        return books(forSectionPos: pos)
+    }
+    
+    
+    // Función que obtiene un libro en una posición y en una sección determinadas
+    
+    func getBook(atPosition bookPos: Int, inSection sectionPos: Int) -> CDABook? {
+        
+        let bookList = books(forSectionPos: sectionPos)
+        
+        if bookList.count == 0 || bookPos >= bookList.count {
+            return nil
+        }
+        
+        return bookList[bookPos]
+    }
+    
+    
+    // Función que obtiene un libro en una posición y para un tag determinados
+    
+    func getBook(atPosition bookPos: Int, forTag tag: CDABookTag) -> CDABook? {
+        
+        let secPos = sectionPos(forTag: tag)
+        
+        if secPos < 0 {
+            return nil
+        }
+        
+        return getBook(atPosition: bookPos, inSection: secPos)
+    }
     
     
     // Debug: función que imprime por consola el contenido de la librería
     
     func printLibraryContents() {
         
-        for (tag, list) in library {
+        if sectionCount == 0 {
             
-            print("\n - TAG \(tag) (\(list.count) libros):")
-            print("   ----------------------------------------------------\n")
+            print("\n** Warning ** : No sections were created yet\n")
+            return
+        }
+        
+        var sectionNum = 0
+        
+        while sectionNum < sectionCount {
             
-            for book in list {
-                print("   \(book)\n")
+            guard let tag = getTag(atSectionPos: sectionNum) else {
+                
+                print("\n** Error ** : Could not retrieve tag at section #\(sectionNum)!\n")
+                return
             }
+            
+            
+            let sectionName = tag.name
+            let booksInSection = bookCount(forSectionPos: sectionNum)
+            
+            print("\n\(sectionNum) - Section '\(sectionName)' (contains \(booksInSection) books):")
+            print("------------------------------------------------------------------------------\n")
+            
+            
+            let bookList = books(forSectionPos: sectionNum)
+            
+            
+            var bookPos: Int = 0
+            
+            while bookPos < booksInSection {
+                
+                let book = getBook(atPosition: bookPos, inSection: sectionNum)
+                
+                if book == nil {
+                    print("\n** Error ** : Could not retrieve book #\(bookPos) in section \(sectionNum)!\n")
+                }
+                else {
+                    print("   \(book!)\n")
+                }
+                
+                bookPos += 1
+            }
+            
+            sectionNum += 1
         }
     }
+    
     
 }
 

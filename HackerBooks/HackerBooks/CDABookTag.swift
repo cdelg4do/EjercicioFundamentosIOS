@@ -69,7 +69,7 @@ func < (left: CDABookTag, right: CDABookTag) -> Bool {
 
 
 // Extensión para implementar el protocolo Hashable,
-// necesario para poder construir arrays de (CDABookTag : [CDABook])
+// necesario para poder construir arrays de (CDABookTag : Int)
 
 extension CDABookTag: Hashable {
     
