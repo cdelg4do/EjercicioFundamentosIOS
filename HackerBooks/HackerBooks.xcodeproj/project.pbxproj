@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		073F6B3B1D2EA99500420DA2 /* CDABookViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073F6B391D2EA99500420DA2 /* CDABookViewController.swift */; };
+		073F6B3C1D2EA99500420DA2 /* CDABookViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 073F6B3A1D2EA99500420DA2 /* CDABookViewController.xib */; };
+		073F6B3F1D2EB05300420DA2 /* CDASimplePDFViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073F6B3D1D2EB05300420DA2 /* CDASimplePDFViewController.swift */; };
+		073F6B401D2EB05300420DA2 /* CDASimplePDFViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 073F6B3E1D2EB05300420DA2 /* CDASimplePDFViewController.xib */; };
+		073F6B561D2F424C00420DA2 /* book_cover.png in Resources */ = {isa = PBXBuildFile; fileRef = 073F6B551D2F424C00420DA2 /* book_cover.png */; };
 		07A3ECBB1D28B82000D53749 /* CDABook.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A3ECBA1D28B82000D53749 /* CDABook.swift */; };
 		07A3ECBD1D28BCA300D53749 /* CDABookTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A3ECBC1D28BCA300D53749 /* CDABookTag.swift */; };
 		07A3ECC11D28CFFF00D53749 /* CDALibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A3ECC01D28CFFF00D53749 /* CDALibrary.swift */; };
@@ -35,6 +40,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		073F6B391D2EA99500420DA2 /* CDABookViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDABookViewController.swift; sourceTree = "<group>"; };
+		073F6B3A1D2EA99500420DA2 /* CDABookViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CDABookViewController.xib; sourceTree = "<group>"; };
+		073F6B3D1D2EB05300420DA2 /* CDASimplePDFViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDASimplePDFViewController.swift; sourceTree = "<group>"; };
+		073F6B3E1D2EB05300420DA2 /* CDASimplePDFViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CDASimplePDFViewController.xib; sourceTree = "<group>"; };
+		073F6B551D2F424C00420DA2 /* book_cover.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = book_cover.png; path = ../../Resources/book_cover.png; sourceTree = "<group>"; };
 		07A3ECBA1D28B82000D53749 /* CDABook.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDABook.swift; sourceTree = "<group>"; };
 		07A3ECBC1D28BCA300D53749 /* CDABookTag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDABookTag.swift; sourceTree = "<group>"; };
 		07A3ECC01D28CFFF00D53749 /* CDALibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDALibrary.swift; sourceTree = "<group>"; };
@@ -127,6 +137,7 @@
 		07FF1B281D28AB6D0050CF94 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				073F6B551D2F424C00420DA2 /* book_cover.png */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -164,6 +175,10 @@
 		07FF1B2C1D28B2C90050CF94 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				073F6B391D2EA99500420DA2 /* CDABookViewController.swift */,
+				073F6B3A1D2EA99500420DA2 /* CDABookViewController.xib */,
+				073F6B3D1D2EB05300420DA2 /* CDASimplePDFViewController.swift */,
+				073F6B3E1D2EB05300420DA2 /* CDASimplePDFViewController.xib */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -273,7 +288,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				073F6B3C1D2EA99500420DA2 /* CDABookViewController.xib in Resources */,
+				073F6B561D2F424C00420DA2 /* book_cover.png in Resources */,
 				07FF1B031D28AAC60050CF94 /* LaunchScreen.storyboard in Resources */,
+				073F6B401D2EB05300420DA2 /* CDASimplePDFViewController.xib in Resources */,
 				07FF1B001D28AAC60050CF94 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -300,8 +318,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				07A3ECC11D28CFFF00D53749 /* CDALibrary.swift in Sources */,
+				073F6B3B1D2EA99500420DA2 /* CDABookViewController.swift in Sources */,
 				07A3ECBD1D28BCA300D53749 /* CDABookTag.swift in Sources */,
 				07FF1AF91D28AAC60050CF94 /* AppDelegate.swift in Sources */,
+				073F6B3F1D2EB05300420DA2 /* CDASimplePDFViewController.swift in Sources */,
 				07A3ECBB1D28B82000D53749 /* CDABook.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -440,6 +460,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = HackerBooks/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cdelgado.HackerBooks;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -452,6 +473,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = HackerBooks/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.cdelgado.HackerBooks;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -18,7 +18,7 @@ class CDABook: Comparable {
     let authors:    [String]
     let tags:       [CDABookTag]
     
-    var portrait:   UIImage
+    var cover:   NSURL
     var pdfUrl:     NSURL
     var isFavorite: Bool
     
@@ -26,16 +26,53 @@ class CDABook: Comparable {
     
     // Inicializador designado de la clase
     
-    init(title: String, authors: [String], tags: [CDABookTag], portrait: UIImage, pdfUrl: NSURL) {
+    init(title: String, authors: [String], tags: [CDABookTag], cover: NSURL, pdfUrl: NSURL) {
         
         self.title = title
         self.authors = authors
         self.tags = tags
-        self.portrait = portrait
+        self.cover = cover
         self.pdfUrl = pdfUrl
         
         self.isFavorite = false
     }
+    
+    
+    // Función que obtiene una representación textual de los autores: "autor1, autor2, autor3, ..."
+    
+    func authorsToString() -> String {
+        
+        var bookAuths = ""
+        var i = 0
+        
+        for a in authors {
+            
+            bookAuths += a
+            i += 1
+            if (i<authors.count) {  bookAuths += ", "   }
+        }
+        
+        return bookAuths
+    }
+    
+    
+    // Función que obtiene una representación textual de los tags: "tag1, tag2, tag3, ..."
+    
+    func tagsToString() -> String {
+        
+        var bookTags = ""
+        var i = 0
+        
+        for t in tags {
+            
+            bookTags += "\(t)"
+            i += 1
+            if (i<tags.count) { bookTags += ", "    }
+        }
+        
+        return bookTags
+    }
+    
     
     
     // Proxys para comparación y ordenación de libros (por título)
@@ -77,8 +114,7 @@ func < (left: CDABook, right: CDABook) -> Bool {
 }
 
 
-
-// Extensión para poder transformar el objeto en una cadena "'título' by autores. (tags)"
+// Debug: extensión para transformar el objeto en una cadena de la forma: "'título' by autores. (tags)"
 // (protocolo CustomStringConvertible, heredado de NSObject)
 
 extension CDABook: CustomStringConvertible {
@@ -86,27 +122,7 @@ extension CDABook: CustomStringConvertible {
     var description: String {
         
         get {
-            var bookAuths = ""
-            var i = 0
-            
-            for a in authors {
-            
-                bookAuths += a
-                i += 1
-                if (i<authors.count) {  bookAuths += ", "   }
-            }
-            
-            var bookTags = ""
-            var j = 0
-            
-            for t in tags {
-                
-                bookTags += "\(t)"
-                j += 1
-                if (j<tags.count) { bookTags += ", "    }
-            }
-            
-            return "'\(self.title)' by \(bookAuths). (\(bookTags))"
+            return "'\(self.title)' by \(authorsToString()). (\(tagsToString()))"
         }
     }
 }
