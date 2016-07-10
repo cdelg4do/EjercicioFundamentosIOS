@@ -18,49 +18,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         // Modelo hardcodeado
         
-        /*
-        let libro1 = CDABook(title: "Libro 1",
-                             authors: ["Autor1", "Autor2"],
-                             tags: [CDABookTag(name: "tag1"), CDABookTag(name: "tag2")],
-                             portrait: UIImage(),
-                             pdfUrl: NSURL(fileURLWithPath: "path1"))
-        
-        let libro2 = CDABook(title: "Libro 2",
-                             authors: ["Autor3", "Autor4", "Autor5"],
-                             tags: [CDABookTag(name: "tag3"), CDABookTag(name: "tag4")],
-                             portrait: UIImage(),
-                             pdfUrl: NSURL(fileURLWithPath: "path2"))
-        
-        let libro3 = CDABook(title: "Libro 3",
-                             authors: ["Autor1", "Autor6"],
-                             tags: [CDABookTag(name: "tag1"), CDABookTag(name: "tag3")],
-                             portrait: UIImage(),
-                             pdfUrl: NSURL(fileURLWithPath: "path3"))
-        
-        let libro4 = CDABook(title: "Libro 4",
-                             authors: ["Autor7"],
-                             tags: [CDABookTag(name: "tag5"), CDABookTag(name: "tag6")],
-                             portrait: UIImage(),
-                             pdfUrl: NSURL(fileURLWithPath: "path4"))
-        
-        let libro5 = CDABook(title: "Libro 5",
-                             authors: ["Autor3", "Autor4", "Autor5"],
-                             tags: [CDABookTag(name: "tag2"), CDABookTag(name: "tag4")],
-                             portrait: UIImage(),
-                             pdfUrl: NSURL(fileURLWithPath: "path5"))
-        
-        let libro6 = CDABook(title: "Salgo en todas partes",
-                             authors: ["Autor4"],
-                             tags: [CDABookTag(name: "tag1"), CDABookTag(name: "tag2"), CDABookTag(name: "tag3"), CDABookTag(name: "tag4"), CDABookTag(name: "tag5"), CDABookTag(name: "tag6")],
-                             portrait: UIImage(),
-                             pdfUrl: NSURL(fileURLWithPath: "path6"))
-        
-        libro6.isFavorite = true
-         
-        let listaLibros = [libro6, libro5, libro4, libro1, libro3, libro2]
-        */
-        
-        
         let book1 = CDABook(title: "Data Structures and Algorithm Analysis in C++",
                              authors: ["Clifford A. Shaffer"],
                              tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "programming")],

@@ -8,6 +8,11 @@
 
 import UIKit
 
+
+let FavoriteDidChangeNotification = "A book was added or removed from Favorites"
+let FavoriteDidChangeKey = "FavoriteBookToggled"
+
+
 class CDABookViewController: UIViewController {
 
     //MARK: Propiedades de la clase
@@ -56,12 +61,12 @@ class CDABookViewController: UIViewController {
         }
         else {
             
-            bookImage.image = UIImage(named: "book_cover.png")!
+            // bookImage.image = UIImage(named: "book_cover.png")!
         }
  
         
         if model.isFavorite {
-            favoriteStatus.text = "Sí"
+            favoriteStatus.text = "Yes"
         }
         else {
             favoriteStatus.text = "No"
@@ -75,6 +80,7 @@ class CDABookViewController: UIViewController {
         
         if let coverImage = model.getCoverImage() {
             
+            print("\nCargando portada de: \(model.cover)...")
             bookImage.image = coverImage
         }
     }
@@ -86,8 +92,20 @@ class CDABookViewController: UIViewController {
     // Añadir/eliminar el libro de Favoritos
     @IBAction func toggleFavorite(sender: AnyObject) {
         
+        print("\nSe modificó el status de favorito del libro actual")
+        
         model.isFavorite = !model.isFavorite
         syncModelWithView(includingCover: false)
+        
+        // Enviar una notificación para que el LibraryTableViewController refleje el cambio
+        let nc = NSNotificationCenter.defaultCenter()
+        
+        let notifName = FavoriteDidChangeNotification
+        let notifObject = self
+        let notifUserInfo = [FavoriteDidChangeKey: model]
+        let notif = NSNotification(name: notifName, object: notifObject, userInfo: notifUserInfo)
+        
+        nc.postNotification(notif)
     }
     
     // Mostrar el PDF del libro
@@ -139,6 +157,8 @@ extension CDABookViewController: CDALibraryTableViewControllerDelegate {
     
     // Actualizar el modelo y la vista con el nuevo libro seleccionado
     func cdaLibraryTableViewController(vc: CDALibraryTableViewController, didSelectBook book: CDABook) {
+        
+        print("\nDelegado BookViewController actualizando los detalles del nuevo libro seleccionado...")
         
         model = book
         

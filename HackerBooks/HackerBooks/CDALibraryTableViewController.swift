@@ -10,9 +10,7 @@ import UIKit
 
 
 let BookDidChangeNotification = "Selected book has changed"
-
-let BookKey = "key"
-
+let BookDidChangeKey = "SelectedBook"
 
 
 class CDALibraryTableViewController: UITableViewController {
@@ -42,13 +40,29 @@ class CDALibraryTableViewController: UITableViewController {
     
     
     
-    //MARK: Delegado
+    //MARK: Función que se ejecuta cuando el usuario selecciona una nueva fila de la tabla
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
         
-        let book = getBook(forIndexPath: indexPath)
+        print("\nNueva fila seleccionada en la tabla: (\(indexPath.section), \(indexPath.row))")
         
-        delegate?.cdaLibraryTableViewController(self, didSelectBook: book)
+        // Obtener el nuevo libro seleccionado
+        let newBook = getBook(forIndexPath: indexPath)
+        
+        // Hacer que el delegado del controlador ejecute el código que corresponde
+        // (en este caso el delegado es un BookViewController --> actualizarse con los detalles del nuevo libro)
+        delegate?.cdaLibraryTableViewController(self, didSelectBook: newBook)
+        
+        // Enviar una notificación de cambio de fila
+        // (para que el PDF View Controller muestre el PDF del nuevo libro seleccionado)
+        let nc = NSNotificationCenter.defaultCenter()
+        
+        let notifName = BookDidChangeNotification
+        let notifObject = self
+        let notifUserInfo = [BookDidChangeKey: newBook]
+        let notif = NSNotification(name: notifName, object: notifObject, userInfo: notifUserInfo)
+        
+        nc.postNotification(notif)
     }
     
     
@@ -89,18 +103,10 @@ class CDALibraryTableViewController: UITableViewController {
         
         
         // Cargar los datos del libro en la celda:
-        // (título -> título del libro, subtítulo -> autor(es), imagen -> portada del libro)
+        // ( título -> título del libro, subtítulo -> autor(es) )
         
         cell?.textLabel?.text = book.title
         cell?.detailTextLabel?.text = book.authorsToString()
-        
-        var coverImage = book.getCoverImage()
-        
-        if coverImage == nil {
-            coverImage = UIImage(named: "book_cover.png")!
-        }
-        
-        //cell?.imageView?.image = coverImage
         
         
         // Devolver la celda construida
@@ -124,7 +130,30 @@ class CDALibraryTableViewController: UITableViewController {
     }
     
     
-    // Función auxiliar para buscar un libro concreto en la libería a partir de un NSIndexPath
+    
+    //MARK: Eventos del ciclo de vida de la vista
+    
+    // Tareas cuando se va a mostrar la vista en pantalla (se invocan una o más veces)
+    
+    override func viewWillAppear(animated: Bool) {
+        
+        super.viewWillAppear(animated)
+        
+        // Suscripción de este controlador a las notificaciones
+        // (para cuando hay un cambio de favorito en un libro)
+        let nc = NSNotificationCenter.defaultCenter()
+        
+        nc.addObserver(self,
+                       selector: #selector(favoriteDidChange),
+                       name: FavoriteDidChangeNotification,
+                       object: nil)                                 // con objetct: nil --> a todas las notificaciones
+    }
+    
+    
+    
+    //MARK: Otras funciones auxiliares
+    
+    // Función para buscar un libro concreto en la libería a partir de un NSIndexPath
     func getBook(forIndexPath indexPath: NSIndexPath) -> CDABook {
         
         // Obtenemos la sección (el tag) y la fila a buscar
@@ -136,6 +165,24 @@ class CDALibraryTableViewController: UITableViewController {
         // Asumimos que el libro buscado existe, en caso contrario la app cascará
         // (en ese caso, hay algo mal hecho)
         return book!
+    }
+    
+    
+    // Función que se ejecuta cuando se recibe una notificación de cambio de favorito en un libro
+    func favoriteDidChange(notification: NSNotification) {
+        
+        print("\nTableViewController recibió una notificación de cambio de favorito")
+        
+        // Obtener el libro que ha sido añadido/eliminado de favoritos
+        let info = notification.userInfo!
+        let book = info[FavoriteDidChangeKey] as? CDABook
+        
+        // Actualizar el modelo
+        model.toggleFavorite(book!)
+        
+        
+        // Refrescar el contenido de la tabla
+        self.tableView.reloadData()
     }
 
 }

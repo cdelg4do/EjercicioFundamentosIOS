@@ -123,6 +123,41 @@ class CDALibrary {
     }
     
     
+    // Función que añade/elimina un libro de la lista de favoritos
+    func toggleFavorite(book: CDABook) {
+        
+        let favSection = sectionPos(forTag: CDABookTag.getFavTag())
+        
+        // Si hay que añadir el libro a favoritos (se añade y se reordena el listado)
+        if book.isFavorite {
+            
+            library[favSection].append(book)
+            library[favSection] = library[favSection].sort()
+            print("\nAñadido a favoritos: \(book)")
+        }
+            
+        // Si hay que eliminar el libro de favoritos
+        else {
+            
+            var i = 0
+            var keepSearching = true
+            
+            while keepSearching && i<library[favSection].count {
+                
+                if library[favSection][i] == book {
+                    
+                    keepSearching = false
+                    library[favSection].removeAtIndex(i)
+                    print("\nEliminado de favoritos: \(book)")
+                }
+                
+                i += 1
+            }
+        }
+        
+    }
+    
+    
     // Función que normaliza una cadena de texto para el nombre de un tag
     // (convirtitiéndola a todo minúsculas)
     

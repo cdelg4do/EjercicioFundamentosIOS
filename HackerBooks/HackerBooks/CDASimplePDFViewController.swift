@@ -12,7 +12,7 @@ class CDASimplePDFViewController: UIViewController {
     
     //MARK: Propiedades de la clase
     
-    let model: CDABook
+    var model: CDABook
     
     
     // Referencia a los objetos de la interfaz
@@ -41,11 +41,34 @@ class CDASimplePDFViewController: UIViewController {
     // Función para actualizar la vista con los datos del modelo
     func syncModelWithView() {
         
+        print("\nCargando PDF de: \(model.pdfUrl)...")
+        
         let request = NSURLRequest(URL: model.pdfUrl)
         
         pdfWebView.scalesPageToFit = true
         pdfWebView.contentMode = UIViewContentMode.ScaleAspectFit
         pdfWebView.loadRequest(request)
+    }
+    
+    
+    // Función que se ejecuta cuando se recibe una notificación de cambio de libro seleccionado en la biblioteca
+    func bookDidChange(notification: NSNotification) {
+        
+        print("\nPdfViewController recibió una notificación de nuevo libro seleccionado")
+        
+        // Obtener el nuevo libro que ha sido seleccionado
+        let info = notification.userInfo!
+        let newBook = info[BookDidChangeKey] as? CDABook
+        
+        // Si es un libro diferente al actual, actualizar el modelo y la vista
+        if newBook != model {
+            
+            self.model = newBook!
+            syncModelWithView()
+        }
+        else {
+            print("\n** Se seleccionó el mismo libro que ya se estaba mostrando, no se realizan operaciones. **")
+        }
     }
     
     
@@ -65,6 +88,16 @@ class CDASimplePDFViewController: UIViewController {
         
         super.viewWillAppear(animated)
         
+        // Suscripción de este controlador a las notificaciones
+        // (para cuando el usuario selecciona un nuevo libro en la tabla)
+        let nc = NSNotificationCenter.defaultCenter()
+        
+        nc.addObserver(self,
+                       selector: #selector(bookDidChange),
+                       name: BookDidChangeNotification,
+                       object: nil)                                 // con objetct: nil --> a todas las notificaciones
+        
+        // Sincronizar la vista con el modelo
         syncModelWithView()
     }
 
