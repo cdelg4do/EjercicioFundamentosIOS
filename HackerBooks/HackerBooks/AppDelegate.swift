@@ -12,6 +12,61 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    
+    var HARDWARE_IS_IPAD: Bool {
+        
+        get {
+            
+            if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
+                return true
+            }
+            else {
+                return false
+            }
+        }
+    }
+    
+    
+    //MARK: Métodos para la creación del root view controller para cada tipo de hardware
+    
+    func rootViewControllerForPad(withLibrary library: CDALibrary) -> UIViewController {
+        
+        // Controladores
+        let libraryVC = CDALibraryTableViewController(model: library)
+        let bookVC = CDABookViewController(forBook: library.getDefaultBook())
+        
+        // Combinadores
+        let libraryNav = UINavigationController(rootViewController: libraryVC)
+        let bookNav = UINavigationController(rootViewController: bookVC)
+        
+        // SplitViewController con ambos combinadores
+        let splitVC = UISplitViewController()
+        splitVC.viewControllers = [libraryNav, bookNav]
+        
+        
+        // Asignación de delegados
+        libraryVC.delegate = bookVC
+        
+        
+        return splitVC
+    }
+    
+    
+    func rootViewControllerForPhone(withLibrary library: CDALibrary) -> UIViewController {
+        
+        // Controlador
+        let libraryVC = CDALibraryTableViewController(model: library)
+        
+        // Combinador
+        let libraryNav = UINavigationController(rootViewController: libraryVC)
+        
+        // Asignación de delegados
+        libraryVC.delegate = libraryVC
+        
+        
+        return libraryNav
+    }
+    
 
 
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
@@ -62,54 +117,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // crear una window
         window = UIWindow(frame:UIScreen.mainScreen().bounds)
         
-/*
-        // crear un VC
-        let rnd = Int(arc4random_uniform(UInt32(listaLibros.count)))
-        let choosenBook = listaLibros[rnd]
-        print("\nMostrando libro #\(rnd): \(choosenBook)")
         
-        let vc = CDABookViewController(forBook: choosenBook)
+        // Determinar el ViewController que usaremos como root (variará dependiendo del hardware en que estemos)
+        var rootVC: UIViewController
         
-        // empotrarlo en un navigation
-        let nav = UINavigationController(rootViewController: vc)
-            
-        // asignar el nav como rootVC
-        window?.rootViewController = nav
-*/
-        
-        
-        // Crear un controlador para la librería y meterlo en un navController
-        let libraryVC = CDALibraryTableViewController(model: myLibrary)
-        let libraryNav = UINavigationController(rootViewController: libraryVC)
-        
-        
-        // Determinar el libro que se mostrará por defecto
-        // (el primer favorito si hay alguno, o el primer libro de la siguiente sección)
-        let defaultBook: CDABook
-        
-        if myLibrary.bookCount(forTag: CDABookTag.getFavTag()) > 0 {
-            
-            defaultBook = myLibrary.getBook(atPosition: 0, forTag: CDABookTag.getFavTag())!
+        if HARDWARE_IS_IPAD {
+            print("\n** HARDWARE ES IPAD: SÍ **")
+            rootVC = rootViewControllerForPad(withLibrary: myLibrary)
         }
         else {
-            
-            defaultBook = myLibrary.getBook(atPosition: 0, inSection: 1)!
+            print("\n** HARDWARE ES IPAD: NO **")
+            rootVC = rootViewControllerForPhone(withLibrary: myLibrary)
         }
         
-        // Crear un controlador para mostrar el detalle de un libro y asignarlo a otro NavController
-        let bookVC = CDABookViewController(forBook: defaultBook)
-        let bookNav = UINavigationController(rootViewController: bookVC)
-        
-        
-        // Crear un Split View con ambos NavControllers y hacerlo root controller de la ventana
-        let splitVC = UISplitViewController()
-        splitVC.viewControllers = [libraryNav, bookNav]
-        window?.rootViewController = splitVC
-        
-        
-        // Asignación del delegado del controlador de tabla
-        libraryVC.delegate = bookVC
-        
+        window?.rootViewController = rootVC
         
  
         // hacer visible & key a la window

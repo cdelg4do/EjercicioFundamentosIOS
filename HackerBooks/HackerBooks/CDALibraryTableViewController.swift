@@ -28,8 +28,11 @@ class CDALibraryTableViewController: UITableViewController {
     init(model: CDALibrary) {
         
         self.model = model
+        
         super.init(nibName: nil, bundle: nil)   // En este caso no existe un XIB asociado, se llama al método loadView() para
                                                 // generar una jerarquía de vistas automática (en este caso un UITableView)
+        
+        title = "HackerBooks 1.0 (\(model.totalBookCount) books)"
     }
     
     // Inicializador requerido para el uso de UIKit en Swift
@@ -133,11 +136,12 @@ class CDALibraryTableViewController: UITableViewController {
     
     //MARK: Eventos del ciclo de vida de la vista
     
-    // Tareas cuando se va a mostrar la vista en pantalla (se invocan una o más veces)
+    // Tareas tras crearse el controlador (se invocan una sola vez)
     
-    override func viewWillAppear(animated: Bool) {
+    override func viewDidLoad() {
         
-        super.viewWillAppear(animated)
+        super.viewDidLoad()
+        
         
         // Suscripción de este controlador a las notificaciones
         // (para cuando hay un cambio de favorito en un libro)
@@ -193,6 +197,22 @@ class CDALibraryTableViewController: UITableViewController {
 protocol CDALibraryTableViewControllerDelegate {
     
     func cdaLibraryTableViewController(vc: CDALibraryTableViewController, didSelectBook book: CDABook)
+}
+
+
+
+//MARK: Hacemos que el propio CDATableViewController implemente el protocolo CDALibraryTableViewControllerDelegate
+//      (para funcionar como su propio delegado cuando no estemos en un iPad y no se pueda usar un SplitVC)
+
+extension CDALibraryTableViewController: CDALibraryTableViewControllerDelegate {
+    
+    // Crear un nuevo BookVC con los datos del nuevo libro seleccionado y mostrarlo
+    func cdaLibraryTableViewController(vc: CDALibraryTableViewController, didSelectBook book: CDABook) {
+        
+        let bookVC = CDABookViewController(forBook: book)
+        self.navigationController?.pushViewController(bookVC, animated: true)
+    }
+    
 }
 
 

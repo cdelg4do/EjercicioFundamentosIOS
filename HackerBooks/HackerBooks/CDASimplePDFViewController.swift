@@ -79,14 +79,7 @@ class CDASimplePDFViewController: UIViewController {
     override func viewDidLoad() {
         
         super.viewDidLoad()
-    }
-    
-    
-    // Tareas cuando se va a mostrar la vista en pantalla (se invocan una o más veces)
-    
-    override func viewWillAppear(animated: Bool) {
         
-        super.viewWillAppear(animated)
         
         // Suscripción de este controlador a las notificaciones
         // (para cuando el usuario selecciona un nuevo libro en la tabla)
@@ -96,6 +89,14 @@ class CDASimplePDFViewController: UIViewController {
                        selector: #selector(bookDidChange),
                        name: BookDidChangeNotification,
                        object: nil)                                 // con objetct: nil --> a todas las notificaciones
+    }
+    
+    
+    // Tareas cuando se va a mostrar la vista en pantalla (se invocan una o más veces)
+    
+    override func viewWillAppear(animated: Bool) {
+        
+        super.viewWillAppear(animated)
         
         // Sincronizar la vista con el modelo
         syncModelWithView()

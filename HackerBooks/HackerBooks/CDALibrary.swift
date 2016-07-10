@@ -25,6 +25,8 @@ class CDALibrary {
     var sections: CategoryIndex = CategoryIndex()
     var library: BookCatalog = BookCatalog()
     
+    var totalBookCount = 0
+    
     
     // Inicializador designado de la clase
     
@@ -52,6 +54,8 @@ class CDALibrary {
         
         // Por último, incorporar los libros al catálogo
         library = populateLibrary(withBooks: books)
+        
+        totalBookCount = books.count
     }
     
     
@@ -164,6 +168,27 @@ class CDALibrary {
     func normalizeTagName(name: String) -> String {
         
         return name.lowercaseString
+    }
+    
+    
+    // Función que determina cuál será el libro a mostrar por defecto al iniciar la app
+    func getDefaultBook() -> CDABook {
+        
+        let defaultBook: CDABook
+        
+        // Si hay algún favorito, se escoge el primer favorito
+        if self.bookCount(forTag: CDABookTag.getFavTag()) > 0 {
+            
+            defaultBook = self.getBook(atPosition: 0, forTag: CDABookTag.getFavTag())!
+        }
+            
+            // Si no hay favoritos, se escoge el primer libro de la siguiente sección
+        else {
+            
+            defaultBook = self.getBook(atPosition: 0, inSection: 1)!
+        }
+        
+        return defaultBook
     }
     
     
