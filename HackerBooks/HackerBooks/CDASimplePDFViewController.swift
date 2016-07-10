@@ -29,7 +29,7 @@ class CDASimplePDFViewController: UIViewController {
         super.init(nibName: "CDASimplePDFViewController", bundle: nil)
     }
     
-    // Inicializador requerido para el uso de XIBs en Swift
+    // Inicializador requerido para el uso de UIKit en Swift
     required init?(coder aDecoder: NSCoder) {
         
         fatalError("init(coder:) has not been implemented")

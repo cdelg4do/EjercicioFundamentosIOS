@@ -12,7 +12,7 @@ class CDABookViewController: UIViewController {
 
     //MARK: Propiedades de la clase
     
-    let model: CDABook
+    var model: CDABook
     
     
     // Referencia a los objetos de la interfaz
@@ -31,7 +31,7 @@ class CDABookViewController: UIViewController {
         super.init(nibName: "CDABookViewController", bundle: nil)
     }
     
-    // Inicializador requerido para el uso de XIBs en Swift
+    // Inicializador requerido para el uso de UIKit en Swift
     required init?(coder aDecoder: NSCoder) {
         
         fatalError("init(coder:) has not been implemented")
@@ -54,6 +54,10 @@ class CDABookViewController: UIViewController {
 
             syncCoverImage()
         }
+        else {
+            
+            bookImage.image = UIImage(named: "book_cover.png")!
+        }
  
         
         if model.isFavorite {
@@ -69,12 +73,9 @@ class CDABookViewController: UIViewController {
     
     func syncCoverImage() {
         
-        do {
-            let imageData = try NSData(contentsOfURL: model.cover, options: NSDataReadingOptions.DataReadingMappedIfSafe)
-            bookImage.image = UIImage(data: imageData)
-        }
-        catch {
-            print("** ERROR ** : fallo al cargar imagen del libro")
+        if let coverImage = model.getCoverImage() {
+            
+            bookImage.image = coverImage
         }
     }
     
@@ -128,3 +129,23 @@ class CDABookViewController: UIViewController {
     }
 
 }
+
+
+
+//MARK: Implementación del protocolo CDALibraryTableViewControllerDelegate
+//      (para cuando se selecciona un libro en la tabla)
+
+extension CDABookViewController: CDALibraryTableViewControllerDelegate {
+    
+    // Actualizar el modelo y la vista con el nuevo libro seleccionado
+    func cdaLibraryTableViewController(vc: CDALibraryTableViewController, didSelectBook book: CDABook) {
+        
+        model = book
+        
+        syncModelWithView(includingCover: false)
+        syncCoverImage()
+    }
+    
+}
+
+

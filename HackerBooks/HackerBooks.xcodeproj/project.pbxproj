@@ -12,6 +12,7 @@
 		073F6B3F1D2EB05300420DA2 /* CDASimplePDFViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073F6B3D1D2EB05300420DA2 /* CDASimplePDFViewController.swift */; };
 		073F6B401D2EB05300420DA2 /* CDASimplePDFViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 073F6B3E1D2EB05300420DA2 /* CDASimplePDFViewController.xib */; };
 		073F6B561D2F424C00420DA2 /* book_cover.png in Resources */ = {isa = PBXBuildFile; fileRef = 073F6B551D2F424C00420DA2 /* book_cover.png */; };
+		073F6B581D317C5900420DA2 /* CDALibraryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073F6B571D317C5900420DA2 /* CDALibraryTableViewController.swift */; };
 		07A3ECBB1D28B82000D53749 /* CDABook.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A3ECBA1D28B82000D53749 /* CDABook.swift */; };
 		07A3ECBD1D28BCA300D53749 /* CDABookTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A3ECBC1D28BCA300D53749 /* CDABookTag.swift */; };
 		07A3ECC11D28CFFF00D53749 /* CDALibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A3ECC01D28CFFF00D53749 /* CDALibrary.swift */; };
@@ -45,6 +46,7 @@
 		073F6B3D1D2EB05300420DA2 /* CDASimplePDFViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDASimplePDFViewController.swift; sourceTree = "<group>"; };
 		073F6B3E1D2EB05300420DA2 /* CDASimplePDFViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CDASimplePDFViewController.xib; sourceTree = "<group>"; };
 		073F6B551D2F424C00420DA2 /* book_cover.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = book_cover.png; path = ../../Resources/book_cover.png; sourceTree = "<group>"; };
+		073F6B571D317C5900420DA2 /* CDALibraryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDALibraryTableViewController.swift; sourceTree = "<group>"; };
 		07A3ECBA1D28B82000D53749 /* CDABook.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDABook.swift; sourceTree = "<group>"; };
 		07A3ECBC1D28BCA300D53749 /* CDABookTag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDABookTag.swift; sourceTree = "<group>"; };
 		07A3ECC01D28CFFF00D53749 /* CDALibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDALibrary.swift; sourceTree = "<group>"; };
@@ -179,6 +181,7 @@
 				073F6B3A1D2EA99500420DA2 /* CDABookViewController.xib */,
 				073F6B3D1D2EB05300420DA2 /* CDASimplePDFViewController.swift */,
 				073F6B3E1D2EB05300420DA2 /* CDASimplePDFViewController.xib */,
+				073F6B571D317C5900420DA2 /* CDALibraryTableViewController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -319,6 +322,7 @@
 			files = (
 				07A3ECC11D28CFFF00D53749 /* CDALibrary.swift in Sources */,
 				073F6B3B1D2EA99500420DA2 /* CDABookViewController.swift in Sources */,
+				073F6B581D317C5900420DA2 /* CDALibraryTableViewController.swift in Sources */,
 				07A3ECBD1D28BCA300D53749 /* CDABookTag.swift in Sources */,
 				07FF1AF91D28AAC60050CF94 /* AppDelegate.swift in Sources */,
 				073F6B3F1D2EB05300420DA2 /* CDASimplePDFViewController.swift in Sources */,

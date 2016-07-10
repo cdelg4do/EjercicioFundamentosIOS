@@ -61,53 +61,52 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         */
         
         
-        let libro1 = CDABook(title: "Data Structures and Algorithm Analysis in C++",
+        let book1 = CDABook(title: "Data Structures and Algorithm Analysis in C++",
                              authors: ["Clifford A. Shaffer"],
                              tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "programming")],
                              cover: NSURL(string: "http://hackershelf.com/media/cache/03/9c/039c5dc17d213a9bd8995d787fc9e45e.jpg")!,
                              pdfUrl: NSURL(string: "http://people.cs.vt.edu/~shaffer/Book/C++3elatest.pdf")!)
         
-        let libro2 = CDABook(title: "PHP 5 Power Programing",
+        let book2 = CDABook(title: "PHP 5 Power Programing",
                              authors: ["Andi Gutmans", "Stig Bakken", "Derick Rethans"],
                              tags: [CDABookTag(name: "programming"), CDABookTag(name: "php")],
-                             cover: NSURL(string: "http://hackershelf.com/media/cache/03/9c/039c5dc17d213a9bd8995d787fc9e45e.jpg")!,
+                             cover: NSURL(string: "http://hackershelf.com/media/cache/c0/cb/c0cb7c7b9e516eb257ee873cd2eaf455.jpg")!,
                              pdfUrl: NSURL(string: "https://ptgmedia.pearsoncmg.com/images/013147149X/downloads/013147149X_book.pdf")!)
         
-        let libro3 = CDABook(title: "Data + Design",
+        let book3 = CDABook(title: "Data + Design",
                              authors: ["Trinna Chiasson", "Dyanna Gregory", "Contributors"],
                              tags: [CDABookTag(name: "design"), CDABookTag(name: "data visualization")],
                              cover: NSURL(string: "http://hackershelf.com/media/cache/d5/c1/d5c1bb30894ecee940da27d00c0498ed.jpg")!,
                              pdfUrl: NSURL(string: "http://orm-atlas2-prod.s3.amazonaws.com/pdf/13a07b19e01a397d8855c0463d52f454.pdf")!)
         
-        let libro4 = CDABook(title: "Data Structures and Algorithm Analysis in Java",
+        let book4 = CDABook(title: "Data Structures and Algorithm Analysis in Java",
                              authors: ["Clifford A. Shaffer"],
                              tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "programming"), CDABookTag(name: "java")],
                              cover: NSURL(string: "http://hackershelf.com/media/cache/f7/f5/f7f572bf7f234f8bd068e608c0d3ef22.jpg")!,
                             pdfUrl: NSURL(string: "http://people.cs.vt.edu/~shaffer/Book/JAVA3elatest.pdf")!)
         
-        let libro5 = CDABook(title: "Combinatorial Algorithms",
+        let book5 = CDABook(title: "Combinatorial Algorithms",
                              authors: ["Herbert S. Wilf", "Albert Nijenhuis"],
                              tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "math")],
-                             cover: NSURL(string: "http://hackershelf.com/media/cache/d5/c1/d5c1bb30894ecee940da27d00c0498ed.jpg")!,
+                             cover: NSURL(string: "http://hackershelf.com/media/cache/35/98/3598f6116dedc9ad6fddb43e63914264.jpg")!,
                              pdfUrl: NSURL(string: "http://www.math.upenn.edu/~wilf/website/CombinatorialAlgorithms.pdf")!)
         
-        libro4.isFavorite = true
-        libro2.isFavorite = true
+        book4.isFavorite = true
+        book5.isFavorite = true
         
+        let myBookList = [book1, book2, book3, book4, book5]
         
-        let listaLibros = [libro1, libro2, libro3, libro4, libro5]
+        let myLibrary = CDALibrary(books: myBookList)
         
-        let libreria = CDALibrary(books: listaLibros)
-        
-        libreria.printLibraryContents()
+        myLibrary.printLibraryContents()
         
         
         
         // crear una window
         window = UIWindow(frame:UIScreen.mainScreen().bounds)
-            
-        // crear un VC
         
+/*
+        // crear un VC
         let rnd = Int(arc4random_uniform(UInt32(listaLibros.count)))
         let choosenBook = listaLibros[rnd]
         print("\nMostrando libro #\(rnd): \(choosenBook)")
@@ -119,11 +118,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
         // asignar el nav como rootVC
         window?.rootViewController = nav
-         
+*/
+        
+        
+        // Crear un controlador para la librería y meterlo en un navController
+        let libraryVC = CDALibraryTableViewController(model: myLibrary)
+        let libraryNav = UINavigationController(rootViewController: libraryVC)
+        
+        
+        // Determinar el libro que se mostrará por defecto
+        // (el primer favorito si hay alguno, o el primer libro de la siguiente sección)
+        let defaultBook: CDABook
+        
+        if myLibrary.bookCount(forTag: CDABookTag.getFavTag()) > 0 {
+            
+            defaultBook = myLibrary.getBook(atPosition: 0, forTag: CDABookTag.getFavTag())!
+        }
+        else {
+            
+            defaultBook = myLibrary.getBook(atPosition: 0, inSection: 1)!
+        }
+        
+        // Crear un controlador para mostrar el detalle de un libro y asignarlo a otro NavController
+        let bookVC = CDABookViewController(forBook: defaultBook)
+        let bookNav = UINavigationController(rootViewController: bookVC)
+        
+        
+        // Crear un Split View con ambos NavControllers y hacerlo root controller de la ventana
+        let splitVC = UISplitViewController()
+        splitVC.viewControllers = [libraryNav, bookNav]
+        window?.rootViewController = splitVC
+        
+        
+        // Asignación del delegado del controlador de tabla
+        libraryVC.delegate = bookVC
+        
+        
+ 
         // hacer visible & key a la window
         window?.makeKeyAndVisible()
-        
-        
         
         
         return true

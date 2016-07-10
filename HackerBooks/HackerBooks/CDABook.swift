@@ -74,6 +74,23 @@ class CDABook: Comparable {
     }
     
     
+    // Función que obtiene un objeto UIImage a partir de la url de la portada del libro
+    
+    func getCoverImage() -> UIImage? {
+        
+        do {
+            
+            let imageData = try NSData(contentsOfURL: cover, options: NSDataReadingOptions.DataReadingMappedIfSafe)
+            return UIImage(data: imageData)
+        }
+        catch {
+            
+            print("** ERROR ** : fallo al cargar imagen del libro")
+            return nil
+        }
+    }
+    
+    
     
     // Proxys para comparación y ordenación de libros (por título)
     
