@@ -13,9 +13,11 @@
 		073F6B401D2EB05300420DA2 /* CDASimplePDFViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 073F6B3E1D2EB05300420DA2 /* CDASimplePDFViewController.xib */; };
 		073F6B561D2F424C00420DA2 /* book_cover.png in Resources */ = {isa = PBXBuildFile; fileRef = 073F6B551D2F424C00420DA2 /* book_cover.png */; };
 		073F6B581D317C5900420DA2 /* CDALibraryTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073F6B571D317C5900420DA2 /* CDALibraryTableViewController.swift */; };
+		073F6B5A1D32D02800420DA2 /* JsonProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073F6B591D32D02800420DA2 /* JsonProcessing.swift */; };
 		07A3ECBB1D28B82000D53749 /* CDABook.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A3ECBA1D28B82000D53749 /* CDABook.swift */; };
 		07A3ECBD1D28BCA300D53749 /* CDABookTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A3ECBC1D28BCA300D53749 /* CDABookTag.swift */; };
 		07A3ECC11D28CFFF00D53749 /* CDALibrary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A3ECC01D28CFFF00D53749 /* CDALibrary.swift */; };
+		07A95BCF1D332EF100803B67 /* Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A95BCE1D332EF100803B67 /* Errors.swift */; };
 		07FF1AF91D28AAC60050CF94 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FF1AF81D28AAC60050CF94 /* AppDelegate.swift */; };
 		07FF1B001D28AAC60050CF94 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 07FF1AFF1D28AAC60050CF94 /* Assets.xcassets */; };
 		07FF1B031D28AAC60050CF94 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 07FF1B011D28AAC60050CF94 /* LaunchScreen.storyboard */; };
@@ -47,9 +49,11 @@
 		073F6B3E1D2EB05300420DA2 /* CDASimplePDFViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CDASimplePDFViewController.xib; sourceTree = "<group>"; };
 		073F6B551D2F424C00420DA2 /* book_cover.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = book_cover.png; path = ../../Resources/book_cover.png; sourceTree = "<group>"; };
 		073F6B571D317C5900420DA2 /* CDALibraryTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDALibraryTableViewController.swift; sourceTree = "<group>"; };
+		073F6B591D32D02800420DA2 /* JsonProcessing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JsonProcessing.swift; sourceTree = "<group>"; };
 		07A3ECBA1D28B82000D53749 /* CDABook.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDABook.swift; sourceTree = "<group>"; };
 		07A3ECBC1D28BCA300D53749 /* CDABookTag.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDABookTag.swift; sourceTree = "<group>"; };
 		07A3ECC01D28CFFF00D53749 /* CDALibrary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CDALibrary.swift; sourceTree = "<group>"; };
+		07A95BCE1D332EF100803B67 /* Errors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Errors.swift; sourceTree = "<group>"; };
 		07FF1AF51D28AAC60050CF94 /* HackerBooks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HackerBooks.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		07FF1AF81D28AAC60050CF94 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		07FF1AFF1D28AAC60050CF94 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -170,6 +174,8 @@
 				07A3ECBA1D28B82000D53749 /* CDABook.swift */,
 				07A3ECBC1D28BCA300D53749 /* CDABookTag.swift */,
 				07A3ECC01D28CFFF00D53749 /* CDALibrary.swift */,
+				073F6B591D32D02800420DA2 /* JsonProcessing.swift */,
+				07A95BCE1D332EF100803B67 /* Errors.swift */,
 			);
 			name = Models;
 			sourceTree = "<group>";
@@ -326,6 +332,8 @@
 				07A3ECBD1D28BCA300D53749 /* CDABookTag.swift in Sources */,
 				07FF1AF91D28AAC60050CF94 /* AppDelegate.swift in Sources */,
 				073F6B3F1D2EB05300420DA2 /* CDASimplePDFViewController.swift in Sources */,
+				073F6B5A1D32D02800420DA2 /* JsonProcessing.swift in Sources */,
+				07A95BCF1D332EF100803B67 /* Errors.swift in Sources */,
 				07A3ECBB1D28B82000D53749 /* CDABook.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

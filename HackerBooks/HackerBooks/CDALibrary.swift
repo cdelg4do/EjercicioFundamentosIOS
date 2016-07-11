@@ -345,7 +345,7 @@ class CDALibrary {
             print("------------------------------------------------------------------------------\n")
             
             
-            let bookList = books(forSectionPos: sectionNum)
+            //let bookList = books(forSectionPos: sectionNum)
             
             
             var bookPos: Int = 0

@@ -13,101 +13,93 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     
+    let remoteJsonUrlString = "https://t.co/K9ziV0z3SJ"     // Url de descarga del JSON con los libros
+    
     var HARDWARE_IS_IPAD: Bool {
-        
         get {
-            
-            if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
-                return true
-            }
-            else {
-                return false
-            }
+            if UIDevice.currentDevice().userInterfaceIdiom == .Pad { return true }
+            else { return false }
+        }
+    }
+    
+    var JSON_NOT_DOWNLOADED: Bool {
+        get {
+            return true
         }
     }
     
     
-    //MARK: Métodos para la creación del root view controller para cada tipo de hardware
     
-    func rootViewControllerForPad(withLibrary library: CDALibrary) -> UIViewController {
-        
-        // Controladores
-        let libraryVC = CDALibraryTableViewController(model: library)
-        let bookVC = CDABookViewController(forBook: library.getDefaultBook())
-        
-        // Combinadores
-        let libraryNav = UINavigationController(rootViewController: libraryVC)
-        let bookNav = UINavigationController(rootViewController: bookVC)
-        
-        // SplitViewController con ambos combinadores
-        let splitVC = UISplitViewController()
-        splitVC.viewControllers = [libraryNav, bookNav]
-        
-        
-        // Asignación de delegados
-        libraryVC.delegate = bookVC
-        
-        
-        return splitVC
-    }
-    
-    
-    func rootViewControllerForPhone(withLibrary library: CDALibrary) -> UIViewController {
-        
-        // Controlador
-        let libraryVC = CDALibraryTableViewController(model: library)
-        
-        // Combinador
-        let libraryNav = UINavigationController(rootViewController: libraryVC)
-        
-        // Asignación de delegados
-        libraryVC.delegate = libraryVC
-        
-        
-        return libraryNav
-    }
-    
-
-
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         
-        // Modelo hardcodeado
         
-        let book1 = CDABook(title: "Data Structures and Algorithm Analysis in C++",
-                             authors: ["Clifford A. Shaffer"],
-                             tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "programming")],
-                             cover: NSURL(string: "http://hackershelf.com/media/cache/03/9c/039c5dc17d213a9bd8995d787fc9e45e.jpg")!,
-                             pdfUrl: NSURL(string: "http://people.cs.vt.edu/~shaffer/Book/C++3elatest.pdf")!)
+        // Lista de libros con la que construir la librería
+        let myBookList: [CDABook]
         
-        let book2 = CDABook(title: "PHP 5 Power Programing",
-                             authors: ["Andi Gutmans", "Stig Bakken", "Derick Rethans"],
-                             tags: [CDABookTag(name: "programming"), CDABookTag(name: "php")],
-                             cover: NSURL(string: "http://hackershelf.com/media/cache/c0/cb/c0cb7c7b9e516eb257ee873cd2eaf455.jpg")!,
-                             pdfUrl: NSURL(string: "https://ptgmedia.pearsoncmg.com/images/013147149X/downloads/013147149X_book.pdf")!)
         
-        let book3 = CDABook(title: "Data + Design",
-                             authors: ["Trinna Chiasson", "Dyanna Gregory", "Contributors"],
-                             tags: [CDABookTag(name: "design"), CDABookTag(name: "data visualization")],
-                             cover: NSURL(string: "http://hackershelf.com/media/cache/d5/c1/d5c1bb30894ecee940da27d00c0498ed.jpg")!,
-                             pdfUrl: NSURL(string: "http://orm-atlas2-prod.s3.amazonaws.com/pdf/13a07b19e01a397d8855c0463d52f454.pdf")!)
+        // Si nunca se había descargado el JSON remoto, se descarga y se construye la lista de libros a partir de los datos que contiene
         
-        let book4 = CDABook(title: "Data Structures and Algorithm Analysis in Java",
-                             authors: ["Clifford A. Shaffer"],
-                             tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "programming"), CDABookTag(name: "java")],
-                             cover: NSURL(string: "http://hackershelf.com/media/cache/f7/f5/f7f572bf7f234f8bd068e608c0d3ef22.jpg")!,
-                            pdfUrl: NSURL(string: "http://people.cs.vt.edu/~shaffer/Book/JAVA3elatest.pdf")!)
+        if JSON_NOT_DOWNLOADED {
+            
+            // Descargar el JSON de Internet
+            guard let jsonList = synchronousDownloadRemoteJson(from: remoteJsonUrlString) else {
+                
+                fatalError("\n** Fallo con el JSON remoto: la descarga falló o no es un documento JSON correcto **")
+            }
+            
+            print("\n** JSON remoto descargado con éxito **")
+            print("\n\(jsonList)\n")
+            
+            
+            // Procesar los datos descargados y construir una lista de libros
+            myBookList = decodeBookList(fromList: jsonList)
+        }
+          
         
-        let book5 = CDABook(title: "Combinatorial Algorithms",
-                             authors: ["Herbert S. Wilf", "Albert Nijenhuis"],
-                             tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "math")],
-                             cover: NSURL(string: "http://hackershelf.com/media/cache/35/98/3598f6116dedc9ad6fddb43e63914264.jpg")!,
-                             pdfUrl: NSURL(string: "http://www.math.upenn.edu/~wilf/website/CombinatorialAlgorithms.pdf")!)
+        // Si no es la primera ejecución, cargamos la lista de libros a partir de los datos almacenados localmente
+            
+        else {
+            
+            // Modelo hardcodeado
+            
+            let book1 = CDABook(title: "Data Structures and Algorithm Analysis in C++",
+                                authors: ["Clifford A. Shaffer"],
+                                tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "programming")],
+                                cover: NSURL(string: "http://hackershelf.com/media/cache/03/9c/039c5dc17d213a9bd8995d787fc9e45e.jpg")!,
+                                pdfUrl: NSURL(string: "http://people.cs.vt.edu/~shaffer/Book/C++3elatest.pdf")!)
+            
+            let book2 = CDABook(title: "PHP 5 Power Programing",
+                                authors: ["Andi Gutmans", "Stig Bakken", "Derick Rethans"],
+                                tags: [CDABookTag(name: "programming"), CDABookTag(name: "php")],
+                                cover: NSURL(string: "http://hackershelf.com/media/cache/c0/cb/c0cb7c7b9e516eb257ee873cd2eaf455.jpg")!,
+                                pdfUrl: NSURL(string: "https://ptgmedia.pearsoncmg.com/images/013147149X/downloads/013147149X_book.pdf")!)
+            
+            let book3 = CDABook(title: "Data + Design",
+                                authors: ["Trinna Chiasson", "Dyanna Gregory", "Contributors"],
+                                tags: [CDABookTag(name: "design"), CDABookTag(name: "data visualization")],
+                                cover: NSURL(string: "http://hackershelf.com/media/cache/d5/c1/d5c1bb30894ecee940da27d00c0498ed.jpg")!,
+                                pdfUrl: NSURL(string: "http://orm-atlas2-prod.s3.amazonaws.com/pdf/13a07b19e01a397d8855c0463d52f454.pdf")!)
+            
+            let book4 = CDABook(title: "Data Structures and Algorithm Analysis in Java",
+                                authors: ["Clifford A. Shaffer"],
+                                tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "programming"), CDABookTag(name: "java")],
+                                cover: NSURL(string: "http://hackershelf.com/media/cache/f7/f5/f7f572bf7f234f8bd068e608c0d3ef22.jpg")!,
+                                pdfUrl: NSURL(string: "http://people.cs.vt.edu/~shaffer/Book/JAVA3elatest.pdf")!)
+            
+            let book5 = CDABook(title: "Combinatorial Algorithms",
+                                authors: ["Herbert S. Wilf", "Albert Nijenhuis"],
+                                tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "math")],
+                                cover: NSURL(string: "http://hackershelf.com/media/cache/35/98/3598f6116dedc9ad6fddb43e63914264.jpg")!,
+                                pdfUrl: NSURL(string: "http://www.math.upenn.edu/~wilf/website/CombinatorialAlgorithms.pdf")!)
+            
+            book4.isFavorite = true
+            book5.isFavorite = true
+            
+            myBookList = [book1, book2, book3, book4, book5]
+        }
         
-        book4.isFavorite = true
-        book5.isFavorite = true
         
-        let myBookList = [book1, book2, book3, book4, book5]
-        
+        // Construir el modelo a partir de los datos cargados
         let myLibrary = CDALibrary(books: myBookList)
         
         myLibrary.printLibraryContents()
@@ -160,6 +152,48 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+    }
+    
+    
+    
+    //MARK: Métodos para la creación del root view controller para cada tipo de hardware
+    
+    func rootViewControllerForPad(withLibrary library: CDALibrary) -> UIViewController {
+        
+        // Controladores
+        let libraryVC = CDALibraryTableViewController(model: library)
+        let bookVC = CDABookViewController(forBook: library.getDefaultBook())
+        
+        // Combinadores
+        let libraryNav = UINavigationController(rootViewController: libraryVC)
+        let bookNav = UINavigationController(rootViewController: bookVC)
+        
+        // SplitViewController con ambos combinadores
+        let splitVC = UISplitViewController()
+        splitVC.viewControllers = [libraryNav, bookNav]
+        
+        
+        // Asignación de delegados
+        libraryVC.delegate = bookVC
+        
+        
+        return splitVC
+    }
+    
+    
+    func rootViewControllerForPhone(withLibrary library: CDALibrary) -> UIViewController {
+        
+        // Controlador
+        let libraryVC = CDALibraryTableViewController(model: library)
+        
+        // Combinador
+        let libraryNav = UINavigationController(rootViewController: libraryVC)
+        
+        // Asignación de delegados
+        libraryVC.delegate = libraryVC
+        
+        
+        return libraryNav
     }
 
 
