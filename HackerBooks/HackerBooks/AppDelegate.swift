@@ -15,6 +15,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     let remoteJsonUrlString = "https://t.co/K9ziV0z3SJ"     // Url de descarga del JSON con los libros
     
+    let jsonAlreadyDownloadedKey = "JSON Already Downloaded on this device"     // Key para el flag que indica que ya se cargó el JSON en el pasado
+    
     var HARDWARE_IS_IPAD: Bool {
         get {
             if UIDevice.currentDevice().userInterfaceIdiom == .Pad { return true }
@@ -22,9 +24,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
-    var JSON_NOT_DOWNLOADED: Bool {
+    var JSON_ALREADY_DOWNLOADED: Bool {
+        
         get {
-            return true
+            return NSUserDefaults.standardUserDefaults().boolForKey(jsonAlreadyDownloadedKey)
         }
     }
     
@@ -37,28 +40,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let myBookList: [CDABook]
         
         
-        // Si nunca se había descargado el JSON remoto, se descarga y se construye la lista de libros a partir de los datos que contiene
-        
-        if JSON_NOT_DOWNLOADED {
+        // Si ya se descargó el JSON remoto en el pasado, cargamos la lista de libros a partir de los datos almacenados localmente
             
-            // Descargar el JSON de Internet
-            guard let jsonList = synchronousDownloadRemoteJson(from: remoteJsonUrlString) else {
-                
-                fatalError("\n** Fallo con el JSON remoto: la descarga falló o no es un documento JSON correcto **")
-            }
-            
-            print("\n** JSON remoto descargado con éxito **")
-            print("\n\(jsonList)\n")
-            
-            
-            // Procesar los datos descargados y construir una lista de libros
-            myBookList = decodeBookList(fromList: jsonList)
-        }
-          
-        
-        // Si no es la primera ejecución, cargamos la lista de libros a partir de los datos almacenados localmente
-            
-        else {
+        if JSON_ALREADY_DOWNLOADED {
             
             // Modelo hardcodeado
             
@@ -96,6 +80,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             book5.isFavorite = true
             
             myBookList = [book1, book2, book3, book4, book5]
+        }
+        
+        
+        // Si nunca se había descargado el JSON remoto, se descarga y se construye la lista de libros a partir de los datos que contiene
+            
+        else {
+            
+            // Descargar el JSON de Internet
+            guard let jsonList = synchronousDownloadRemoteJson(from: remoteJsonUrlString) else {
+                
+                fatalError("\n** Fallo con el JSON remoto: la descarga falló o no es un documento JSON correcto **")
+            }
+            
+            print("\n** JSON remoto descargado con éxito **")
+            print("\n\(jsonList)\n")
+            
+            
+            // Guardar en NSUserDefaults de la aplicación un flag que indique que los datos ya fueron descargados
+            // (para no tener que volverlos a descargar en sucesivas ejecuciones de la aplicación)
+            
+            NSUserDefaults.standardUserDefaults().setBool(true, forKey: jsonAlreadyDownloadedKey)
+            
+            
+            // Construir la lista de libros a partir de los datos parseados
+            myBookList = decodeBookList(fromList: jsonList)
         }
         
         
