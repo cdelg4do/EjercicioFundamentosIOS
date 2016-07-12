@@ -184,6 +184,15 @@ class CDALibraryTableViewController: UITableViewController {
         // Actualizar el modelo
         model.toggleFavorite(book!)
         
+        // Serializar el modelo actualizado
+        do {
+            try model.saveToFile()
+        }
+        catch {
+            print("\n** ERROR: no pudo guardarse el fichero JSON en la Sandbox **")
+        }
+        
+        
         
         // Refrescar el contenido de la tabla
         self.tableView.reloadData()

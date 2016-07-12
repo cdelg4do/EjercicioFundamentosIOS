@@ -21,5 +21,11 @@ enum JsonError: ErrorType {
     case jsonParsingError
     case wrongJSONFormat
     case nilJSONObject
+    case unableToWriteJSONFile
 }
 
+
+enum FilesystemError: ErrorType {
+    
+    case unableToCreateCacheFolders
+}

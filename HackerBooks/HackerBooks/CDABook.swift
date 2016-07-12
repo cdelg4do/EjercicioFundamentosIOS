@@ -18,23 +18,32 @@ class CDABook: Comparable {
     let authors:    [String]
     let tags:       [CDABookTag]
     
-    var cover:   NSURL
+    var coverUrl:   NSURL
     var pdfUrl:     NSURL
     var isFavorite: Bool
     
     
     
-    // Inicializador designado de la clase
+    // Inicializadores designado y de conveniencia de la clase
     
-    init(title: String, authors: [String], tags: [CDABookTag], cover: NSURL, pdfUrl: NSURL) {
+    init(title: String, authors: [String], tags: [CDABookTag], coverUrl: NSURL, pdfUrl: NSURL, isFavorite: Bool) {
         
         self.title = title
         self.authors = authors
         self.tags = tags
-        self.cover = cover
+        self.coverUrl = coverUrl
         self.pdfUrl = pdfUrl
+        self.isFavorite = isFavorite
+    }
+    
+    convenience init(title: String, authors: [String], tags: [CDABookTag], coverUrl: NSURL, pdfUrl: NSURL) {
         
-        self.isFavorite = false
+        self.init(title: title,
+                  authors: authors,
+                  tags: tags,
+                  coverUrl: coverUrl,
+                  pdfUrl: pdfUrl,
+                  isFavorite: false)
     }
     
     
@@ -80,7 +89,7 @@ class CDABook: Comparable {
         
         do {
             
-            let imageData = try NSData(contentsOfURL: cover, options: NSDataReadingOptions.DataReadingMappedIfSafe)
+            let imageData = try NSData(contentsOfURL: coverUrl, options: NSDataReadingOptions.DataReadingMappedIfSafe)
             return UIImage(data: imageData)
         }
         catch {
@@ -88,6 +97,25 @@ class CDABook: Comparable {
             print("** ERROR ** : fallo al cargar imagen del libro")
             return nil
         }
+    }
+    
+    
+    // Función que convierte el objeto en una cadena JSON
+    
+    func toJsonString() -> String {
+        
+        var json = " {\n"
+        
+        json += "  \"title\": \"" + self.title + "\",\n"
+        json += "  \"authors\": \"" + self.authorsToString() + "\",\n"
+        json += "  \"tags\": \"" + self.tagsToString() + "\",\n"
+        json += "  \"image_url\": \"" + self.coverUrl.absoluteString + "\",\n"
+        json += "  \"pdf_url\": \"" + self.pdfUrl.absoluteString + "\",\n"
+        json += "  \"favorite\": " + self.isFavorite.description + "\n"
+        
+        json += " }"
+        
+        return json
     }
     
     
@@ -128,6 +156,20 @@ func == (left: CDABook, right: CDABook) -> Bool {
 func < (left: CDABook, right: CDABook) -> Bool {
     
     return left.proxyForComparison < right.proxyForComparison
+}
+
+
+// Extensión para implementar el protocolo Hashable,
+// necesario para poder construir sets de CDABook
+
+extension CDABook: Hashable {
+    
+    var hashValue: Int {
+        
+        get {
+            return proxyForComparison.hashValue
+        }
+    }
 }
 
 

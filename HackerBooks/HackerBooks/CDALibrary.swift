@@ -192,6 +192,59 @@ class CDALibrary {
     }
     
     
+    // Función que devuelve una cadena con la representación JSON de todos los libros contenidos en la biblioteca
+    
+    func toJsonString() -> String {
+        
+        var json = "[\n"
+        
+        
+        // Volcar todos libros a un set (para evitar duplicados)
+        var bookSet = Set<CDABook>()
+        
+        for bookList in library {
+            for book in bookList {
+                
+                bookSet.insert(book)
+            }
+        }
+        
+        // Para cada libro contenido en el set, obtener su representación json
+        var i = 0
+        
+        for book in bookSet {
+            
+            json += book.toJsonString()
+            
+            i += 1
+            if (i<bookSet.count) { json += ",\n" }
+        }
+        
+        json += "\n]\n"
+        
+        return json
+    }
+    
+    
+    // Función que vuelca los libros con su status actual a un fichero JSON en la carpeta Documents del Sandbox
+    func saveToFile() throws {
+        
+        let fileName = "books.json"
+        let documentsDir = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0]
+        let filePath = documentsDir + "/" + fileName
+        
+        print("\nSalvando JSON local en: \(filePath)...")
+        
+        do {
+            try self.toJsonString().writeToFile(filePath, atomically: true, encoding: NSUTF8StringEncoding)
+        }
+        catch {
+            throw JsonError.unableToWriteJSONFile
+        }
+    }
+    
+    
+    
     
     // FUNCIONES AUXILIARES PARA ACCEDER AL CONTENIDO DE LA BIBLIOTECA
     

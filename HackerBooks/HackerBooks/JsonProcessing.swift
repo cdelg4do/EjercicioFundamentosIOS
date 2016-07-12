@@ -24,14 +24,11 @@ typealias JsonList          = [JsonDictionary]
 func synchronousDownloadRemoteJson(from urlString: String) -> JsonList? {
     
     // Intentar descargar el contenido del fichero remoto en un objeto NSData
-    print("\nDescargando JSON remoto de \(urlString)...")
+    print("\nDescargando JSON remoto desde \(urlString)...")
     
     let fileData: NSData?
     
-    guard let url = NSURL(string: urlString) else {
-        
-        return nil
-    }
+    guard let url = NSURL(string: urlString) else { return nil }
     
     do {     
         fileData = try NSData(contentsOfURL: url, options: NSDataReadingOptions())
@@ -54,13 +51,61 @@ func synchronousDownloadRemoteJson(from urlString: String) -> JsonList? {
 }
 
 
+// Función que trata de parsear el contenido del fichero JSON local, devolviendo el objeto JsonList correspondiente
+// (si no lo consigue, intentará descargar el JSON remoto y si también fallase entonces devuelve nil)
+
+func synchronousParseLocalJson(ifErrorThenTryFrom remoteUrlString: String) -> JsonList? {
+    
+    // Ruta al fichero JSON local
+    let fileName = "books.json"
+    let documentsDir = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0]
+    let filePath = documentsDir + "/" + fileName
+    
+    
+    // Intentar cargar el contenido del fichero local en un objeto NSData
+    print("\nCargando información del JSON local desde \(filePath)...")
+    
+    let fileData: NSData?
+    let url = NSURL.fileURLWithPath(filePath)
+    
+    do {
+        fileData = try NSData(contentsOfURL: url, options: NSDataReadingOptions())
+    }
+    catch { fileData = nil }
+    
+    
+    // Si se pudieron obtener los datos localmente, intentar parsearlos a un JsonList
+    if fileData != nil {
+        
+        print("\nParseando datos del fichero local...")
+        
+        guard let maybeList = try? NSJSONSerialization.JSONObjectWithData(fileData!, options: NSJSONReadingOptions.MutableContainers) as? JsonList,
+            let jsonList = maybeList else {
+                
+                return nil
+        }
+        
+        return jsonList
+    }
+    
+    // Si no pudo obtenerse información del JSON local,
+    // entonces se intenta obtener la información del JSON remoto
+    else {
+        
+        print("\n** ERROR: no fue posible cargar los datos del JSON local **")
+        return synchronousDownloadRemoteJson(from: remoteUrlString)
+    }
+    
+}
+
+
 
 // Función que trata de construir una lista de CDABook a partir de una lista de objetos JsonDictionary
 
 func decodeBookList(fromList jsonList: JsonList) -> [CDABook] {
     
     var bookList = [CDABook]()
-    print("\nConstruyendo lista de libros a partir de los datos parseados...")
+    print("\nConstruyendo lista de libros a partir de los datos obtenidos...")
     
     for jsonElement in jsonList {
         
@@ -80,11 +125,10 @@ func decodeBookList(fromList jsonList: JsonList) -> [CDABook] {
 
 
 // Función que trata de construir un objeto CDABook a partir de un objeto JsonDictionary
-// obtenida con el método synchronousDownloadRemoteJson()
 
 func decodeBook(fromElement json: JsonDictionary) throws -> CDABook {
     
-    print("\nDecodificando elemento: \(json)...")
+    //print("\nDecodificando elemento: \(json)...")
     
     // Título del libro
     guard let bookTitle = json["title"] as? String else { throw JsonError.wrongJSONFormat }
@@ -117,19 +161,31 @@ func decodeBook(fromElement json: JsonDictionary) throws -> CDABook {
     guard let bookPdfUrl = NSURL(string: pdfUrlString) else { throw JsonError.wrongURLFormatForJSONResource }
     
     
+    // El indicador de favorito es opcional (no existe en el JSON descargado de internet, pero sí en el que se almacena localmente)
+    var bookIsFavorite = false
+    
+    let favorite = json["favorite"] as? Bool
+    
+    if favorite != nil && favorite == true {
+        
+        bookIsFavorite = true
+    }
+    
+    
     // Llegados a este punto, disponemos de toda la información necesaria para crear el correspondiente CDABook
     
-    let newBook = CDABook(title:    bookTitle,
-                          authors:  bookAuthors,
-                          tags:     bookTags,
-                          cover:    bookCoverUrl,
-                          pdfUrl:   bookPdfUrl)
+    let newBook = CDABook(title:        bookTitle,
+                          authors:      bookAuthors,
+                          tags:         bookTags,
+                          coverUrl:     bookCoverUrl,
+                          pdfUrl:       bookPdfUrl,
+                          isFavorite:   bookIsFavorite)
     
     return newBook
 }
 
 
-
+/*
 // Función sobrecargada de la anterior, que acepta un opcional como parámetro
 
 func decodeBook(fromElement json: JsonDictionary?) throws -> CDABook {
@@ -143,7 +199,7 @@ func decodeBook(fromElement json: JsonDictionary?) throws -> CDABook {
         throw JsonError.nilJSONObject
     }
 }
-
+*/
 
 
 

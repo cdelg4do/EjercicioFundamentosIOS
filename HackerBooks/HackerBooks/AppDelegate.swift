@@ -11,12 +11,14 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-    var window: UIWindow?
     
-    let remoteJsonUrlString = "https://t.co/K9ziV0z3SJ"     // Url de descarga del JSON con los libros
+    // Url de descarga del JSON remoto con la información de los libros
+    let remoteJsonUrlString = "https://t.co/K9ziV0z3SJ"
     
-    let jsonAlreadyDownloadedKey = "JSON Already Downloaded on this device"     // Key para el flag que indica que ya se cargó el JSON en el pasado
+    // Key para el flag que indica que ya se cargó el JSON en el pasado
+    let jsonAlreadyDownloadedKey = "JSON Already Downloaded on this device"
     
+    // Variable que discrimina si el hardware es una tablet o no
     var HARDWARE_IS_IPAD: Bool {
         get {
             if UIDevice.currentDevice().userInterfaceIdiom == .Pad { return true }
@@ -24,6 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
+    // Variable que discrimina si el fichero JSON remoto ya fue descargado en anteriores ejecuciones del programa
     var JSON_ALREADY_DOWNLOADED: Bool {
         
         get {
@@ -32,90 +35,83 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     
+    var window: UIWindow?
+    
+    
     
     func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
         
-        
         // Lista de libros con la que construir la librería
         let myBookList: [CDABook]
+        let myLibrary: CDALibrary
         
         
         // Si ya se descargó el JSON remoto en el pasado, cargamos la lista de libros a partir de los datos almacenados localmente
-            
         if JSON_ALREADY_DOWNLOADED {
             
-            // Modelo hardcodeado
+            // Leer el JSON local y si falla (p.ej. el fichero está corrupto), intentar descargar el JSON remoto de nuevo
             
-            let book1 = CDABook(title: "Data Structures and Algorithm Analysis in C++",
-                                authors: ["Clifford A. Shaffer"],
-                                tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "programming")],
-                                cover: NSURL(string: "http://hackershelf.com/media/cache/03/9c/039c5dc17d213a9bd8995d787fc9e45e.jpg")!,
-                                pdfUrl: NSURL(string: "http://people.cs.vt.edu/~shaffer/Book/C++3elatest.pdf")!)
+            guard let jsonList = synchronousParseLocalJson(ifErrorThenTryFrom: remoteJsonUrlString) else {
+                
+                fatalError("\n** ERROR: no ha sido posible obtener los datos del JSON local ni del remoto **")
+            }
             
-            let book2 = CDABook(title: "PHP 5 Power Programing",
-                                authors: ["Andi Gutmans", "Stig Bakken", "Derick Rethans"],
-                                tags: [CDABookTag(name: "programming"), CDABookTag(name: "php")],
-                                cover: NSURL(string: "http://hackershelf.com/media/cache/c0/cb/c0cb7c7b9e516eb257ee873cd2eaf455.jpg")!,
-                                pdfUrl: NSURL(string: "https://ptgmedia.pearsoncmg.com/images/013147149X/downloads/013147149X_book.pdf")!)
+            print("\nJSON local procesado con éxito")
+            //print("\n\(jsonList)\n")
             
-            let book3 = CDABook(title: "Data + Design",
-                                authors: ["Trinna Chiasson", "Dyanna Gregory", "Contributors"],
-                                tags: [CDABookTag(name: "design"), CDABookTag(name: "data visualization")],
-                                cover: NSURL(string: "http://hackershelf.com/media/cache/d5/c1/d5c1bb30894ecee940da27d00c0498ed.jpg")!,
-                                pdfUrl: NSURL(string: "http://orm-atlas2-prod.s3.amazonaws.com/pdf/13a07b19e01a397d8855c0463d52f454.pdf")!)
+            // Construir la lista de libros a partir de los datos parseados
+            myBookList = decodeBookList(fromList: jsonList)
             
-            let book4 = CDABook(title: "Data Structures and Algorithm Analysis in Java",
-                                authors: ["Clifford A. Shaffer"],
-                                tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "programming"), CDABookTag(name: "java")],
-                                cover: NSURL(string: "http://hackershelf.com/media/cache/f7/f5/f7f572bf7f234f8bd068e608c0d3ef22.jpg")!,
-                                pdfUrl: NSURL(string: "http://people.cs.vt.edu/~shaffer/Book/JAVA3elatest.pdf")!)
-            
-            let book5 = CDABook(title: "Combinatorial Algorithms",
-                                authors: ["Herbert S. Wilf", "Albert Nijenhuis"],
-                                tags: [CDABookTag(name: "algorithms"), CDABookTag(name: "math")],
-                                cover: NSURL(string: "http://hackershelf.com/media/cache/35/98/3598f6116dedc9ad6fddb43e63914264.jpg")!,
-                                pdfUrl: NSURL(string: "http://www.math.upenn.edu/~wilf/website/CombinatorialAlgorithms.pdf")!)
-            
-            book4.isFavorite = true
-            book5.isFavorite = true
-            
-            myBookList = [book1, book2, book3, book4, book5]
+            // Construir el modelo a partir de la lista de libros
+            myLibrary = CDALibrary(books: myBookList)
         }
         
-        
         // Si nunca se había descargado el JSON remoto, se descarga y se construye la lista de libros a partir de los datos que contiene
-            
         else {
             
             // Descargar el JSON de Internet
             guard let jsonList = synchronousDownloadRemoteJson(from: remoteJsonUrlString) else {
                 
-                fatalError("\n** Fallo con el JSON remoto: la descarga falló o no es un documento JSON correcto **")
+                fatalError("\n** ERROR: la descarga del JSON remoto falló o no es un documento JSON correcto **")
             }
             
-            print("\n** JSON remoto descargado con éxito **")
-            print("\n\(jsonList)\n")
-            
-            
-            // Guardar en NSUserDefaults de la aplicación un flag que indique que los datos ya fueron descargados
-            // (para no tener que volverlos a descargar en sucesivas ejecuciones de la aplicación)
-            
-            NSUserDefaults.standardUserDefaults().setBool(true, forKey: jsonAlreadyDownloadedKey)
-            
+            print("\nJSON remoto procesado con éxito")
+            //print("\n\(jsonList)\n")
             
             // Construir la lista de libros a partir de los datos parseados
             myBookList = decodeBookList(fromList: jsonList)
+            
+            // Construir el modelo a partir de la lista de libros
+            myLibrary = CDALibrary(books: myBookList)
+            
+            
+            // Guardarlo en la sandbox y crear el flag que indica que en próximas ejecuciones los datos se carguen localmente
+            do {
+                try myLibrary.saveToFile()
+                NSUserDefaults.standardUserDefaults().setBool(true, forKey: jsonAlreadyDownloadedKey)
+            }
+            catch {
+                print("\n** ERROR: no pudo guardarse el fichero JSON en la Sandbox **")
+            }
+            
+            
+            // También en la Sandbox, crear los directorios para almacenar las portadas y los pdf
+            do {
+                try createCacheFolders()
+            }
+            catch {
+                fatalError("\n** ERROR: no fue posible crear los directorios para la caché local **")
+            }
         }
         
         
-        // Construir el modelo a partir de los datos cargados
-        let myLibrary = CDALibrary(books: myBookList)
+        // Debug: mostrar información sobre el modelo construido
         
-        myLibrary.printLibraryContents()
+        //myLibrary.printLibraryContents()
+        //print("\n\(myLibrary.toJsonString())")
         
         
-        
-        // crear una window
+        // Crear una window
         window = UIWindow(frame:UIScreen.mainScreen().bounds)
         
         
@@ -123,11 +119,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         var rootVC: UIViewController
         
         if HARDWARE_IS_IPAD {
-            print("\n** HARDWARE ES IPAD: SÍ **")
+            print("\nEstableciendo rootViewController para iPad...")
             rootVC = rootViewControllerForPad(withLibrary: myLibrary)
         }
         else {
-            print("\n** HARDWARE ES IPAD: NO **")
+            print("\nEstableciendo rootViewController para iPhone...")
             rootVC = rootViewControllerForPhone(withLibrary: myLibrary)
         }
         
@@ -141,6 +137,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
+/*
     func applicationWillResignActive(application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
@@ -162,10 +159,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
+*/
     
     
+    //MARK: Funciones auxiliares
     
-    //MARK: Métodos para la creación del root view controller para cada tipo de hardware
+    
+    // Creación de los directorios para las cachés de imágenes y pdf
+    
+    func createCacheFolders() throws {
+        
+        let dirNameImages = "Images"
+        let dirNamePdf = "Pdf"
+        let documentsDir = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0]
+        
+        let imagesPath = documentsDir + "/" + dirNameImages
+        let pdfPath = documentsDir + "/" + dirNamePdf
+        
+        print("\nCreando directorios de caché local en:\n - \(imagesPath)\n - \(pdfPath)")
+        
+        do {
+            try NSFileManager.defaultManager().createDirectoryAtPath(imagesPath, withIntermediateDirectories: false, attributes: nil)
+            try NSFileManager.defaultManager().createDirectoryAtPath(pdfPath, withIntermediateDirectories: false, attributes: nil)
+        }
+        catch {
+            throw FilesystemError.unableToCreateCacheFolders
+        }
+    }
+    
+    
+    // Método para la creación del root view controller para hardware iPad
     
     func rootViewControllerForPad(withLibrary library: CDALibrary) -> UIViewController {
         
@@ -189,6 +212,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return splitVC
     }
     
+    
+    // Método para la creación del root view controller para hardware iPhone
     
     func rootViewControllerForPhone(withLibrary library: CDALibrary) -> UIViewController {
         

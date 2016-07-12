@@ -80,7 +80,7 @@ class CDABookViewController: UIViewController {
         
         if let coverImage = model.getCoverImage() {
             
-            print("\nCargando portada de: \(model.cover)...")
+            print("\nCargando portada de: \(model.coverUrl)...")
             bookImage.image = coverImage
         }
     }
