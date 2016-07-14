@@ -162,6 +162,16 @@ class CDALibrary {
     }
     
     
+    // Función que actualiza la url de la imagen de portada de un libro
+    func updateCoverUrl(book: CDABook) {
+        
+        // ...
+        
+        print(self.toJsonString())
+    }
+    
+    
+    
     // Función que normaliza una cadena de texto para el nombre de un tag
     // (convirtitiéndola a todo minúsculas)
     

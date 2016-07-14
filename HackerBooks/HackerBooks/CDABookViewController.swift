@@ -12,6 +12,10 @@ import UIKit
 let FavoriteDidChangeNotification = "A book was added or removed from Favorites"
 let FavoriteDidChangeKey = "FavoriteBookToggled"
 
+let CoverUrlUpdatedNotification = "A book has updated its cover url to a relative local path"
+let CoverUrlUpdatedKey = "CoverUrlUpdated"
+
+
 
 class CDABookViewController: UIViewController {
 
@@ -78,11 +82,56 @@ class CDABookViewController: UIViewController {
     
     func syncCoverImage() {
         
-        if let coverImage = model.getCoverImage() {
-            
-            print("\nCargando portada de: \(model.coverUrl)...")
-            bookImage.image = coverImage
+        
+        print("\nCargando portada de: \(model.coverUrl)...")
+        
+        // Obtenemos la imagen de la url del modelo (sin preocuparnos si es local o remota)
+        guard let coverImage = model.getCoverImage() else {
+            return
         }
+        
+        
+        bookImage.image = coverImage
+        
+        
+        // Si no es una url local, guardamos la imagen obtenida en el sandbox, y actualizamos la url del modelo
+        
+        if !model.isLocalCoverUrl() {
+            
+            print("La ruta del fichero es remota, convirténdola en local...")
+            
+            // Ruta en la que almacenar el fichero
+            let dirNameImages = "Images"
+            let documentsDir = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0]
+            let fileName = model.getFileName(fromUrl: model.coverUrl)
+            
+            let relativePath = "/" + fileName
+            let fullPath = documentsDir + "/" + dirNameImages + relativePath
+            
+            
+            // Convertir el UIImage en NSData y guardarlo en la sandbox
+            guard let imageData = UIImageJPEGRepresentation(coverImage, 1.0) else {
+                return
+            }
+            
+            imageData.writeToFile(fullPath, atomically: true)
+            
+            
+            // Actualizar la url del modelo
+            model.coverUrl = NSURL(fileURLWithPath: fullPath)
+            
+            
+            // Enviar una notficación al TableViewController para que salve los cambios en la librería
+            let nc = NSNotificationCenter.defaultCenter()
+            
+            let notifName = CoverUrlUpdatedNotification
+            let notifObject = self
+            let notifUserInfo = [CoverUrlUpdatedKey: model]
+            let notif = NSNotification(name: notifName, object: notifObject, userInfo: notifUserInfo)
+            
+            nc.postNotification(notif)
+        }
+        
     }
     
     

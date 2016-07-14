@@ -100,6 +100,25 @@ class CDABook: Comparable {
     }
     
     
+    
+    // Función que obtiene un objeto NSData a partir de la url del pdf del libro
+    
+    func getPdfData() -> NSData? {
+        
+        do {
+            
+            let pdfData = try NSData(contentsOfURL: pdfUrl, options: NSDataReadingOptions.DataReadingMappedIfSafe)
+            return pdfData
+        }
+        catch {
+            
+            print("** ERROR ** : fallo al cargar pdf del libro")
+            return nil
+        }
+    }
+    
+    
+    
     // Función que convierte el objeto en una cadena JSON
     
     func toJsonString() -> String {
@@ -116,6 +135,46 @@ class CDABook: Comparable {
         json += " }"
         
         return json
+    }
+    
+    
+    // Función que indica si la URL de la portada es local
+    
+    func isLocalCoverUrl() -> Bool {
+        
+        let urlString = self.coverUrl.absoluteString
+        let firstChar = urlString[urlString.startIndex]
+        
+        if firstChar == "/" {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    
+    
+    // Función que indica si la URL del PDF es local
+    
+    func isLocalPdfUrl() -> Bool {
+        
+        let urlString = self.pdfUrl.absoluteString
+        let firstChar = urlString[urlString.startIndex]
+        
+        if firstChar == "/" {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    
+    
+    // Función que indica el nombre de un fichero, a partir de una url al mismo
+    
+    func getFileName(fromUrl url: NSURL) -> String {
+        
+        return url.absoluteString.componentsSeparatedByString("/").last!
     }
     
     

@@ -8,6 +8,11 @@
 
 import UIKit
 
+
+let PdfUrlUpdatedNotification = "A book has updated its pdf url to a relative local path"
+let PdfUrlUpdatedKey = "PdfUrlUpdated"
+
+
 class CDASimplePDFViewController: UIViewController {
     
     //MARK: Propiedades de la clase
@@ -43,11 +48,47 @@ class CDASimplePDFViewController: UIViewController {
         
         print("\nCargando PDF de: \(model.pdfUrl)...")
         
-        let request = NSURLRequest(URL: model.pdfUrl)
+        guard let pdf = model.getPdfData() else {
+            return
+        }
         
-        pdfWebView.scalesPageToFit = true
-        pdfWebView.contentMode = UIViewContentMode.ScaleAspectFit
-        pdfWebView.loadRequest(request)
+        pdfWebView.loadData(pdf, MIMEType: "application/pdf", textEncodingName: "utf-8", baseURL: NSURL())
+        
+        
+        // Si no es una url local, guardamos el pdf obtenido en el sandbox, y actualizamos la url del modelo
+        
+        if !model.isLocalPdfUrl() {
+            
+            print("La ruta del fichero es remota, convirténdola en local...")
+            
+            // Ruta en la que almacenar el fichero
+            let dirNamePdfs = "Pdf"
+            let documentsDir = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0]
+            let fileName = model.getFileName(fromUrl: model.pdfUrl)
+            
+            let relativePath = "/" + fileName
+            let fullPath = documentsDir + "/" + dirNamePdfs + relativePath
+            
+            
+            // Guardar el NSData en la sandbox
+            pdf.writeToFile(fullPath, atomically: true)
+            
+            
+            // Actualizar la url del modelo
+            model.pdfUrl = NSURL(fileURLWithPath: fullPath)
+            
+            // Enviar una notficación al TableViewController para que salve los cambios en la librería
+            let nc = NSNotificationCenter.defaultCenter()
+            
+            let notifName = PdfUrlUpdatedNotification
+            let notifObject = self
+            let notifUserInfo = [PdfUrlUpdatedKey: model]
+            let notif = NSNotification(name: notifName, object: notifObject, userInfo: notifUserInfo)
+            
+            nc.postNotification(notif)
+        }
+        
+        
     }
     
     

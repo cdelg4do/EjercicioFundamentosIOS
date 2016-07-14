@@ -144,6 +144,7 @@ class CDALibraryTableViewController: UITableViewController {
         
         
         // Suscripción de este controlador a las notificaciones
+        
         // (para cuando hay un cambio de favorito en un libro)
         let nc = NSNotificationCenter.defaultCenter()
         
@@ -151,6 +152,12 @@ class CDALibraryTableViewController: UITableViewController {
                        selector: #selector(favoriteDidChange),
                        name: FavoriteDidChangeNotification,
                        object: nil)                                 // con objetct: nil --> a todas las notificaciones
+        
+        // (para cuando se actualiza la url de la portada de un libro)
+        nc.addObserver(self,
+                       selector: #selector(coverUrlUpdated),
+                       name: CoverUrlUpdatedNotification,
+                       object: nil)
     }
     
     
@@ -197,6 +204,51 @@ class CDALibraryTableViewController: UITableViewController {
         // Refrescar el contenido de la tabla
         self.tableView.reloadData()
     }
+    
+    
+    // Función que se ejecuta cuando se recibe una notificación de actualización de la url de la portada de un libro
+    func coverUrlUpdated(notification: NSNotification) {
+        
+        print("\nTableViewController recibió una notificación de actualización de una url de portada")
+        
+        // Obtener el libro que ha cambiado
+        let info = notification.userInfo!
+        let book = info[CoverUrlUpdatedKey] as? CDABook
+        
+        // Actualizar el modelo
+        model.updateCoverUrl(book!)
+        
+        // Serializar el modelo actualizado
+        do {
+            try model.saveToFile()
+        }
+        catch {
+            print("\n** ERROR: no pudo guardarse el fichero JSON en la Sandbox **")
+        }
+    }
+    
+    
+    // Función que se ejecuta cuando se recibe una notificación de actualización de la url del pdf de un libro
+    func pdfUrlUpdated(notification: NSNotification) {
+        
+        print("\nTableViewController recibió una notificación de actualización de una url de portada")
+        
+        // Obtener el libro que ha cambiado
+        let info = notification.userInfo!
+        let book = info[CoverUrlUpdatedKey] as? CDABook
+        
+        // Actualizar el modelo
+        model.updateCoverUrl(book!)
+        
+        // Serializar el modelo actualizado
+        do {
+            try model.saveToFile()
+        }
+        catch {
+            print("\n** ERROR: no pudo guardarse el fichero JSON en la Sandbox **")
+        }
+    }
+    
 
 }
 
