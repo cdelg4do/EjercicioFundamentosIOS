@@ -59,7 +59,7 @@ class CDASimplePDFViewController: UIViewController {
         
         if !model.isLocalPdfUrl() {
             
-            print("La ruta del fichero es remota, convirténdola en local...")
+            print("\nLa ruta del fichero es remota, convirténdola en local...")
             
             // Ruta en la que almacenar el fichero
             let dirNamePdfs = "Pdf"

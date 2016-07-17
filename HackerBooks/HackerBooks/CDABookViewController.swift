@@ -98,7 +98,7 @@ class CDABookViewController: UIViewController {
         
         if !model.isLocalCoverUrl() {
             
-            print("La ruta del fichero es remota, convirténdola en local...")
+            print("\nLa ruta del fichero es remota, convirténdola en local...")
             
             // Ruta en la que almacenar el fichero
             let dirNameImages = "Images"

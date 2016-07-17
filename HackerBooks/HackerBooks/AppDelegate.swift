@@ -18,6 +18,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // Key para el flag que indica que ya se cargó el JSON en el pasado
     let jsonAlreadyDownloadedKey = "JSON Already Downloaded on this device"
     
+    // Variable que determina si hay que indicar en el título de la librería que se están cargando datos descargados
+    var showTitleNewData = false
+    
     // Variable que discrimina si el hardware es una tablet o no
     var HARDWARE_IS_IPAD: Bool {
         get {
@@ -26,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
     }
     
-    // Variable que discrimina si el fichero JSON remoto ya fue descargado en anteriores ejecuciones del programa
+    // Variable calculada que discrimina si el fichero JSON remoto ya fue descargado en anteriores ejecuciones del programa
     var JSON_ALREADY_DOWNLOADED: Bool {
         
         get {
@@ -64,6 +67,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             
             // Construir el modelo a partir de la lista de libros
             myLibrary = CDALibrary(books: myBookList)
+            
+            // No se mostrará nada en el título de la librería acerca de si los datos son locales (se asume que sí)
+            showTitleNewData = false
         }
         
         // Si nunca se había descargado el JSON remoto, se descarga y se construye la lista de libros a partir de los datos que contiene
@@ -102,6 +108,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             catch {
                 fatalError("\n** ERROR: no fue posible crear los directorios para la caché local **")
             }
+            
+            
+            // Se mostrará en el título que los datos se acaban de descargar (new)
+            showTitleNewData = true
         }
         
         
@@ -193,7 +203,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func rootViewControllerForPad(withLibrary library: CDALibrary) -> UIViewController {
         
         // Controladores
-        let libraryVC = CDALibraryTableViewController(model: library)
+        let libraryVC = CDALibraryTableViewController(model: library, showTitleNewData: showTitleNewData)
         let bookVC = CDABookViewController(forBook: library.getDefaultBook())
         
         // Combinadores
@@ -218,7 +228,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func rootViewControllerForPhone(withLibrary library: CDALibrary) -> UIViewController {
         
         // Controlador
-        let libraryVC = CDALibraryTableViewController(model: library)
+        let libraryVC = CDALibraryTableViewController(model: library, showTitleNewData: showTitleNewData)
         
         // Combinador
         let libraryNav = UINavigationController(rootViewController: libraryVC)

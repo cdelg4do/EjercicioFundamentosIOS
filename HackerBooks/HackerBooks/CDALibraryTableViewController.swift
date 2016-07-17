@@ -25,14 +25,24 @@ class CDALibraryTableViewController: UITableViewController {
     //MARK: Inicializadores de la clase
     
     // Inicializador designado
-    init(model: CDALibrary) {
+    // (el parámetro isLocalLibrary indica que ya existe el JSON descargado localmente)
+    
+    init(model: CDALibrary, showTitleNewData: Bool) {
         
         self.model = model
         
         super.init(nibName: nil, bundle: nil)   // En este caso no existe un XIB asociado, se llama al método loadView() para
                                                 // generar una jerarquía de vistas automática (en este caso un UITableView)
         
-        title = "HackerBooks 1.0 (\(model.totalBookCount) books)"
+        // Título para mostrar
+        let titleString = "HackerBooks 1.0 (\(model.totalBookCount) books)"
+        
+        if showTitleNewData {
+            title = titleString + " - New"
+        }
+        else {
+            title = titleString
+        }
     }
     
     // Inicializador requerido para el uso de UIKit en Swift
@@ -145,7 +155,6 @@ class CDALibraryTableViewController: UITableViewController {
         
         // Suscripción de este controlador a las notificaciones
         
-        // (para cuando hay un cambio de favorito en un libro)
         let nc = NSNotificationCenter.defaultCenter()
         
         nc.addObserver(self,
@@ -157,6 +166,12 @@ class CDALibraryTableViewController: UITableViewController {
         nc.addObserver(self,
                        selector: #selector(coverUrlUpdated),
                        name: CoverUrlUpdatedNotification,
+                       object: nil)
+        
+        // (para cuando se actualiza la url de la portada de un libro)
+        nc.addObserver(self,
+                       selector: #selector(pdfUrlUpdated),
+                       name: PdfUrlUpdatedNotification,
                        object: nil)
     }
     
@@ -211,13 +226,6 @@ class CDALibraryTableViewController: UITableViewController {
         
         print("\nTableViewController recibió una notificación de actualización de una url de portada")
         
-        // Obtener el libro que ha cambiado
-        let info = notification.userInfo!
-        let book = info[CoverUrlUpdatedKey] as? CDABook
-        
-        // Actualizar el modelo
-        model.updateCoverUrl(book!)
-        
         // Serializar el modelo actualizado
         do {
             try model.saveToFile()
@@ -231,14 +239,7 @@ class CDALibraryTableViewController: UITableViewController {
     // Función que se ejecuta cuando se recibe una notificación de actualización de la url del pdf de un libro
     func pdfUrlUpdated(notification: NSNotification) {
         
-        print("\nTableViewController recibió una notificación de actualización de una url de portada")
-        
-        // Obtener el libro que ha cambiado
-        let info = notification.userInfo!
-        let book = info[CoverUrlUpdatedKey] as? CDABook
-        
-        // Actualizar el modelo
-        model.updateCoverUrl(book!)
+        print("\nTableViewController recibió una notificación de actualización de una url de pdf")
         
         // Serializar el modelo actualizado
         do {

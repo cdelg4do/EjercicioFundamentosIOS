@@ -6,6 +6,11 @@
 //  Copyright © 2016 CDA. All rights reserved.
 //
 
+//
+//  Clase CDABook con la información de cada libro de la biblioteca
+//
+
+
 import Foundation
 import UIKit
 
@@ -145,7 +150,7 @@ class CDABook: Comparable {
         let urlString = self.coverUrl.absoluteString
         let firstChar = urlString[urlString.startIndex]
         
-        if firstChar == "/" {
+        if firstChar == "f" {
             return true
         }
         else {
@@ -161,7 +166,7 @@ class CDABook: Comparable {
         let urlString = self.pdfUrl.absoluteString
         let firstChar = urlString[urlString.startIndex]
         
-        if firstChar == "/" {
+        if firstChar == "f" {
             return true
         }
         else {

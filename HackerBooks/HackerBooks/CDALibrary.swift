@@ -6,6 +6,11 @@
 //  Copyright © 2016 CDA. All rights reserved.
 //
 
+//
+//  Clase CDABookLibrary que contiene toda la información sobre la biblioteca de la aplicación.
+//
+
+
 import Foundation
 import UIKit
 
@@ -22,10 +27,10 @@ class CDALibrary {
     
     // Propiedades de la biblioteca
     
-    var sections: CategoryIndex = CategoryIndex()
-    var library: BookCatalog = BookCatalog()
+    var library: BookCatalog = BookCatalog()            // Array de listas de libros (una lista para cada categoría)
+    var sections: CategoryIndex = CategoryIndex()       // Diccionario que asocia a cada categoría una posición del array anterior
     
-    var totalBookCount = 0
+    var totalBookCount = 0                              // Total de libros cargados en la biblioteca (para mostrarlo por pantalla)
     
     
     // Inicializador designado de la clase
@@ -33,6 +38,8 @@ class CDALibrary {
     init(books: BookList) {
         
         // Crear un conjunto con los tags existentes (para eliminar posibles duplicados)
+        // Volcar el contenido del set en un array de tags, para su posterior ordenación
+        
         var tagSet = Set<String>()
         for b in books {
             for tag in b.tags {
@@ -40,7 +47,6 @@ class CDALibrary {
             }
         }
         
-        // Volcar el contenido del set en un array de tags, para su posterior ordenación
         var tagList = TagList()
         for tagName in tagSet {
             let newTag = CDABookTag(name: tagName)
@@ -63,7 +69,7 @@ class CDALibrary {
     // FUNCIONES DE CONFIGURACIÓN INICIAL DE LA BIBLIOTECA
     
     
-    // Función que crea el índice ordenado de categorías, a partir de una lista de tags
+    // Función que crea el diccionario de categorías, a partir de una lista de tags
     
     func createCategoryIndex(withTags tags: TagList) -> CategoryIndex {
         
@@ -84,7 +90,8 @@ class CDALibrary {
     }
     
     
-    // Función que rellena un catalogo con una lista de libros
+    // Función que crea el array de libros por categorías, a partir de una lista de libros
+    // ( previamente debe haberse creado el diccionario de categorías con createCategoryIndex() )
     
     func populateLibrary(withBooks books: BookList) -> BookCatalog {
         
@@ -128,6 +135,7 @@ class CDALibrary {
     
     
     // Función que añade/elimina un libro de la lista de favoritos
+    
     func toggleFavorite(book: CDABook) {
         
         let favSection = sectionPos(forTag: CDABookTag.getFavTag())
@@ -163,13 +171,13 @@ class CDALibrary {
     
     
     // Función que actualiza la url de la imagen de portada de un libro
-    func updateCoverUrl(book: CDABook) {
-        
+/*    func updateCoverUrl(book: CDABook) {
+
         // ...
         
         print(self.toJsonString())
     }
-    
+*/    
     
     
     // Función que normaliza una cadena de texto para el nombre de un tag

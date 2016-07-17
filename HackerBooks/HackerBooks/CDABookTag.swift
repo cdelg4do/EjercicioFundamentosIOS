@@ -6,6 +6,11 @@
 //  Copyright © 2016 CDA. All rights reserved.
 //
 
+//
+//  Clase CDABookTag para los tags de los libros
+//
+
+
 import Foundation
 
 
