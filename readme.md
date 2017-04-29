@@ -1,45 +1,45 @@
-# Práctica Fundamentos iOS de Carlos Delgado Andrés
+# HackerBooks
 
-**HackerBooks** es un prototipo de aplicación para iOS realizada en Swift 2.2.
+This is a prototype of an ebook reader for iOS devices (adapted both to iPhone and iPad), made in Swift 2.2.
 
-Se trata de un lector de libros en PDF para iPad. La interfaz de la app está formada por un *Split View Controller* que divide la pantala en dos partes diferenciadas, conteniendo los siguientes elementos:
+Every time the app starts, it loads a list of available books from a JSON file stored in the internal storage. In case it is the first time it is being executed, the JSON will be downloaded from <a href="https://t.co/K9ziV0z3SJ">this URL</a>.
 
-* **Tabla de libros**: a la izquierda, consistente en un *Table View Controller* que muestra todo el catálogo de libros dsponibles agrupados por categorías. Incluye también un apartado para los libros favoritos del usuario.
+The user can select a book from a catalogue to check the book details, read its content or add/remove the book from favorites. Every time the user attempts to read a book for the first time, a PDF document is downloaded and stored locally. When the user opens that book the next time, it will be loaded from the local storage instead of downloading it again. The same behavior happens with the pictures that are the cover of the books.
 
-* **Detalle del libro**: a la derecha, se muestra cuando el usuario selecciona un libro en la tabla, y contiene los datos del libro seleccionado, así como un botón para visualizar el PDF correspondiente.
+In order to show on an iPad device, the app uses a Split View Controller that slpits the screen into two parts:
 
-* **Visor de PDF**: también a la derecha, se muestra cuando el usuario pulsa el botón de visualizar el PDF de un libro, en lugar del detalle del libro. Consiste en un *Web View Controller*.
+* **Book List**: on the left, it is a Table View Controller showing the available books, grouped by categories. There is a special category, always at the begining of the list, that shows the books the user marked as favorites.
 
-Los datos acerca del catálogo de libros se descargan de *internet* la primera vez que se ejecuta la aplicación, y quedan disponibles localmente para posteriores ejecuciones.
+* **Book detail**: on the right, shown when the user selects a book on the left. It contains the information about the selected book (authors, categories, cover image) and a couple of buttons to read the contents and to add/remove it from favorites.
+
+* **PDF Reader**: on the right too, shown when the user clicks the Read button on the Book detail view. A Web View Controller is used to show the book content.
+
+In case of an iPhone device, each of these views are shown on different screens.
 
 .
-### Cuestiones sobre la práctica:
+### Screenshots:
 
-**1- Procesado del fichero JSON de datos: ¿De qué formas se puede determinar si a través de la clase *NSJSONSerialization* se obtiene un objeto *Dictionary* o un *Array de Dictionary*?**
+<kbd> <img alt="screenshot 1" src="https://cloud.githubusercontent.com/assets/18370149/25552229/a23b1860-2c94-11e7-957b-21f197e398b8.jpg" width="256"> </kbd> &nbsp; <kbd> <img alt="screenshot 2" src="https://cloud.githubusercontent.com/assets/18370149/25552230/a23b7f12-2c94-11e7-82a0-a0ea30ec462c.jpg" width="256"> </kbd> &nbsp; <kbd> <img alt="screenshot 3" src="https://cloud.githubusercontent.com/assets/18370149/25552268/2fd8c604-2c95-11e7-8f46-9f289e08689f.jpg" width="256"> </kbd>
 
-Aplicando un cast (as?) a uno de esos tipos de datos al resultado devuelto por la función JSONObjectWithData(). Si el cast falla, entonces es del otro tipo.
+&nbsp;
+<kbd>
+  <img alt="screenshot 4" src="https://cloud.githubusercontent.com/assets/18370149/25552299/26970d98-2c96-11e7-892b-1a4f2f2b1558.jpg" ></kbd>
+  
+&nbsp;
+<kbd>
+  <img alt="screenshot 5" src="https://cloud.githubusercontent.com/assets/18370149/25552300/26986ec2-2c96-11e7-976a-592d5f62bedf.jpg" ></kbd>
 
-**2- Las imágenes de portada y los PDFs se deben almacenar localmente. ¿Dónde guardarías esos datos?**
+.
+### Additional considerations:
 
-Dentro de la carpeta Documents de la app. Concretamente, se crean dos subcarpetas para cachear estos recursos: /Images y /Pdf.
+While processing the JSON data file, in order to determine if the *NSJSONSerialization* class is returning a *Dictionary* object or an array of Dictionary objects, a cast is applied to the result of the JSONObjectWithData().
 
-**3- La información sobre los favoritos del usuario debe ser persistente entre una ejecución y otra. ¿De qué formas se podría hacer? Explicar la decisión de diseño tomada.**
+Both the PDF and the cover of the books are locally stored on the *Documents* folder of the app. Specifically, two sub-folders are created to cache these resources: /Images and /Pdf.
 
-Se ha decidido que, cada vez que cambia el status de favorito de un libro, envíe una notificación al TableViewController para que almacene en disco el modelo actualizado (esto es, el listado JSON con todos los libros de la librería). Para ello, se serializa el modelo en un fichero Documents/books.json idéntico al original descargado, pero que además incluye para cada libro un nuevo campo "favorite" que será true o false.
+In order to keep the information about the favorite books of the user between executions, a notification is sent to the TableViewController every time a book changes its favorite status. Then, the updated model (including all the available books and the list of favorites) is serialized to a file Documents/books.json. This file has the same structure as the original downloaded file, but also includes a new field "favorite" (true/false) for each book.
 
-**4- ¿Cómo enviar la información de un libro al controlador de la tabla de libros, cada vez que el usuario marca o desmarca un libro como favorito? ¿Se te ocurren más formas de hacerlo? ¿Cuál te parece mejor y por qué?**
+Another approach, instead of using notifications, could be using the TableViewController as a delegate of the BookViewController that triggers the change in the favorite status of the book. One way or another, the TableViewController needs to be informed about the change, in order to store the data and refresh the list on screen.
 
-Se puede hacer mediante notificaciones, indicando en los datos de usuario de la notificación qué datos se han enviado. Otra forma sería que el controlador de la tabla actuase de delegado del controlador del libro que se ha cambiado a favorito/no favorito.
+To refresh the list of books, the *reloadData()* method is used. This will take the data from the TableView datasource and paint them on screen. This does not affect the performance in a significant way, since reloadData() actually refreshes only the visible rows of the list. Alternate choices could be the *reloadRows()* or *reloadSections()* methods.
 
-Me parece mejor el uso de notificaciones, ya que ello evita tener que implementar un nuevo protocolo de delegado solo para esta función, y además permitiría fácilmente que otro controlador más respondiese a esa acción, en caso de que fuese necesario en el futuro.
-
-**5- Para actualizar la información de la tabla reflejando el cambio de un favorito, se usa el método *reloadData* que vuelve a pedir datos del dataSource del *Table View*. ¿Es esto muy costoso en términos de rendimiento? ¿Por qué? ¿Qué otras alternativas habría y cuándo sería recomendable usarlas?**
-
-No es costoso, ya que el método reloadData() solo refresca el contenido de las filas que sean visibles en ese momento.
-
-Como alternativas, se podrían usar los métodos reloadRows() para actualizar una fila concreta o reloadSections() para una sección concreta.
-
-**6- Cuando el usuario selecciona otro libro en la tabla, el visor de PDF debe actualizarse con el libro correspondiente. ¿Cómo lo harías?**
-
-En este caso, el controlador de tabla envía una notificación a la cuál está suscrito el WebViewController que muestra los PDFs. Este obtiene de la notificación los datos acerca del libro seleccionado y actualiza la vista de acuerdo con esa información.
-
+If a PDF file is showing when the user selects another book in the list, the PDF viewer must show the new book contents. In order to achieve this, another notification is sent to the WebViewController that shows the PDFs. It gets the data about the selected book from the notification and updates the view.
