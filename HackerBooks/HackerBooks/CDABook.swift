@@ -7,7 +7,7 @@
 //
 
 //
-//  Clase CDABook con la información de cada libro de la biblioteca
+//  Class CDABook with information about a book in the library
 //
 
 
@@ -17,21 +17,17 @@ import UIKit
 
 class CDABook: Comparable {
     
-    // Propiedades de la clase
-    
     let title:      String
     let authors:    [String]
     let tags:       [CDABookTag]
     
-    var coverUrl:   NSURL
-    var pdfUrl:     NSURL
+    var coverUrl:   URL
+    var pdfUrl:     URL
     var isFavorite: Bool
     
     
-    
-    // Inicializadores designado y de conveniencia de la clase
-    
-    init(title: String, authors: [String], tags: [CDABookTag], coverUrl: NSURL, pdfUrl: NSURL, isFavorite: Bool) {
+    // Designated & convenience initializers
+    init(title: String, authors: [String], tags: [CDABookTag], coverUrl: URL, pdfUrl: URL, isFavorite: Bool) {
         
         self.title = title
         self.authors = authors
@@ -41,7 +37,7 @@ class CDABook: Comparable {
         self.isFavorite = isFavorite
     }
     
-    convenience init(title: String, authors: [String], tags: [CDABookTag], coverUrl: NSURL, pdfUrl: NSURL) {
+    convenience init(title: String, authors: [String], tags: [CDABookTag], coverUrl: URL, pdfUrl: URL) {
         
         self.init(title: title,
                   authors: authors,
@@ -52,8 +48,7 @@ class CDABook: Comparable {
     }
     
     
-    // Función que obtiene una representación textual de los autores: "autor1, autor2, autor3, ..."
-    
+    // Gets a String with the book authors: "author1, author2, author3, ..."
     func authorsToString() -> String {
         
         var bookAuths = ""
@@ -70,8 +65,7 @@ class CDABook: Comparable {
     }
     
     
-    // Función que obtiene una representación textual de los tags: "tag1, tag2, tag3, ..."
-    
+    // Gets a String with the book tags: "tag1, tag2, tag3, ..."
     func tagsToString() -> String {
         
         var bookTags = ""
@@ -88,31 +82,28 @@ class CDABook: Comparable {
     }
     
     
-    // Función que obtiene un objeto UIImage a partir de la url de la portada del libro
-    
+    // Gets a UIImage from the book cover url (or nil in case the operation fails)
     func getCoverImage() -> UIImage? {
         
         do {
             
-            let imageData = try NSData(contentsOfURL: coverUrl, options: NSDataReadingOptions.DataReadingMappedIfSafe)
+            let imageData = try Data(contentsOf: coverUrl, options: NSData.ReadingOptions.mappedIfSafe)
             return UIImage(data: imageData)
         }
         catch {
             
-            print("** ERROR ** : fallo al cargar imagen del libro")
+            print("** ERROR ** : failed to load the cover image")
             return nil
         }
     }
     
     
-    
-    // Función que obtiene un objeto NSData a partir de la url del pdf del libro
-    
-    func getPdfData() -> NSData? {
+    // Gets a Data object from the book pdf url (or nil in case the operation fails)
+    func getPdfData() -> Data? {
         
         do {
             
-            let pdfData = try NSData(contentsOfURL: pdfUrl, options: NSDataReadingOptions.DataReadingMappedIfSafe)
+            let pdfData = try Data(contentsOf: pdfUrl, options: NSData.ReadingOptions.mappedIfSafe)
             return pdfData
         }
         catch {
@@ -123,9 +114,7 @@ class CDABook: Comparable {
     }
     
     
-    
-    // Función que convierte el objeto en una cadena JSON
-    
+    // Gets a String with all relevant data of the book (useful for debugging)
     func toJsonString() -> String {
         
         var json = " {\n"
@@ -143,8 +132,7 @@ class CDABook: Comparable {
     }
     
     
-    // Función que indica si la URL de la portada es local
-    
+    // Indicates if the stored cover url is a local url or not
     func isLocalCoverUrl() -> Bool {
         
         let urlString = self.coverUrl.absoluteString
@@ -159,8 +147,7 @@ class CDABook: Comparable {
     }
     
     
-    // Función que indica si la URL del PDF es local
-    
+    // Indicates if the stored PDF url is a local url or not
     func isLocalPdfUrl() -> Bool {
         
         let urlString = self.pdfUrl.absoluteString
@@ -175,17 +162,14 @@ class CDABook: Comparable {
     }
     
     
-    // Función que indica el nombre de un fichero, a partir de una url al mismo
-    
-    func getFileName(fromUrl url: NSURL) -> String {
+    // Gets a the name of a file, from a url pointing to it
+    func getFileName(fromUrl url: URL) -> String {
         
-        return url.absoluteString.componentsSeparatedByString("/").last!
+        return url.absoluteString.components(separatedBy: "/").last!
     }
     
     
-    
-    // Proxys para comparación y ordenación de libros (por título)
-    
+    // Proxies to compare and sort books, by title (computed variables)
     var proxyForComparison: String {
         
         get {
@@ -193,20 +177,16 @@ class CDABook: Comparable {
         }
     }
     
-    
     var proxyForSorting: String {
         
         get {
             return proxyForComparison
         }
     }
-    
 }
 
 
-
-// Sobrecarga de operadores para el protocolo Comparable
-
+// Operator oveload for the Comparable protocol
 func == (left: CDABook, right: CDABook) -> Bool {
     
     guard (left !== right) else {
@@ -216,16 +196,15 @@ func == (left: CDABook, right: CDABook) -> Bool {
     return left.proxyForComparison == right.proxyForComparison
 }
 
-
 func < (left: CDABook, right: CDABook) -> Bool {
     
     return left.proxyForComparison < right.proxyForComparison
 }
 
 
-// Extensión para implementar el protocolo Hashable,
-// necesario para poder construir sets de CDABook
+//MARK: Extensions
 
+// Extension to implement the Hashable protocol
 extension CDABook: Hashable {
     
     var hashValue: Int {
@@ -237,9 +216,8 @@ extension CDABook: Hashable {
 }
 
 
-// Debug: extensión para transformar el objeto en una cadena de la forma: "'título' by autores. (tags)"
-// (protocolo CustomStringConvertible, heredado de NSObject)
-
+// Extension to implement the CustomStringConvertible protocol, inherited from NSObject
+// (useful for debugging, to transform the object into a String in the form "'title' by 'authors'. ('tags')"
 extension CDABook: CustomStringConvertible {
     
     var description: String {
@@ -249,4 +227,3 @@ extension CDABook: CustomStringConvertible {
         }
     }
 }
-

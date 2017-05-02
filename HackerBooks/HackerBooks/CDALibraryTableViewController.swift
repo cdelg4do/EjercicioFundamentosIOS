@@ -15,26 +15,21 @@ let BookDidChangeKey = "SelectedBook"
 
 class CDALibraryTableViewController: UITableViewController {
 
-    //MARK: Propiedades de la clase
-    
     let model: CDALibrary
-    var delegate: CDALibraryTableViewControllerDelegate?  // Opcional porque puede no haber delegado en un momento dado
-    
-    
+    var delegate: CDALibraryTableViewControllerDelegate?  // It is optional, since it can be undefined
 
-    //MARK: Inicializadores de la clase
     
-    // Inicializador designado
-    // (el parámetro isLocalLibrary indica que ya existe el JSON descargado localmente)
+    //MARK: Class initializers
     
+    // Designated initializer
     init(model: CDALibrary, showTitleNewData: Bool) {
         
         self.model = model
         
-        super.init(nibName: nil, bundle: nil)   // En este caso no existe un XIB asociado, se llama al método loadView() para
-                                                // generar una jerarquía de vistas automática (en este caso un UITableView)
+        super.init(nibName: nil, bundle: nil)   // There is no .xib file associated to this controller, the method loadView()
+                                                // will be invoked to generate an automatic view hierarchy (an UITableView in this case)
         
-        // Título para mostrar
+        // Title to show
         let titleString = "HackerBooks 1.0 (\(model.totalBookCount) books)"
         
         if showTitleNewData {
@@ -45,208 +40,179 @@ class CDALibraryTableViewController: UITableViewController {
         }
     }
     
-    // Inicializador requerido para el uso de UIKit en Swift
+    // Required initializer to use UIKit in Swift
     required init?(coder aDecoder: NSCoder) {
         
         fatalError("init(coder:) has not been implemented")
     }
     
     
-    
-    //MARK: Función que se ejecuta cuando el usuario selecciona una nueva fila de la tabla
-    
-    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+    // Action to do when a table row is selected
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
-        print("\nNueva fila seleccionada en la tabla: (\(indexPath.section), \(indexPath.row))")
+        print("\nA row has been selected from the book list: (\((indexPath as NSIndexPath).section), \((indexPath as NSIndexPath).row))")
         
-        // Obtener el nuevo libro seleccionado
-        let newBook = getBook(forIndexPath: indexPath)
+        let selectedBook = getBook(forIndexPath: indexPath)
         
-        // Hacer que el delegado del controlador ejecute el código que corresponde
-        // (en este caso el delegado es un BookViewController --> actualizarse con los detalles del nuevo libro)
-        delegate?.cdaLibraryTableViewController(self, didSelectBook: newBook)
+        // Call the delegate (if any) to update the book detail with the selected book
+        delegate?.delegateAction(self, didSelectBook: selectedBook)
         
-        // Enviar una notificación de cambio de fila
-        // (para que el PDF View Controller muestre el PDF del nuevo libro seleccionado)
-        let nc = NSNotificationCenter.defaultCenter()
+        // Send a notification of selected row
+        // (so that the PDF View Controller changes to the PDF of the selected book)
+        let nc = NotificationCenter.default
         
         let notifName = BookDidChangeNotification
         let notifObject = self
-        let notifUserInfo = [BookDidChangeKey: newBook]
-        let notif = NSNotification(name: notifName, object: notifObject, userInfo: notifUserInfo)
+        let notifUserInfo = [BookDidChangeKey: selectedBook]
+        let notif = Notification(name: Notification.Name(rawValue: notifName), object: notifObject, userInfo: notifUserInfo)
         
-        nc.postNotification(notif)
+        nc.post(notif)
     }
     
-    
 
-    //MARK: Funciones para la carga de datos en la tabla
+    //MARK: methods to access data in the table view
     
-    // Número de secciones de la tabla (tantos como tags diferentes, y una sección más para los favoritos)
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
+    // Number of sections in the table
+    override func numberOfSections(in tableView: UITableView) -> Int {
         
         return model.sectionCount
     }
     
-    // Número de filas en una sección (el número de libros que contiene)
-    override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    // Number of rows in a given section
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
         return model.bookCount(forSectionPos: section)
     }
     
-    
-    // Construcción de cada celda de la tabla
-    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
+    // Building a table row
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        // Obtener el libro correspondiente a la celda
-        let book = getBook(forIndexPath: indexPath)
-        
-        // Id. para el tipo de celda (en este caso, todas las celdas serán del mismo tipo)
+        // Id. for the cell type (in this case, all cells will be the same type)
         let cellId = "CDAHackerBooks"
         
+        // Get the book that corresponds to that cell
+        let book = getBook(forIndexPath: indexPath)
         
-        // Intentamos reciclar una celda del tipo correspondiente
-        // (si no es posible, creamos una desde cero del estilo Subtitle)
         
-        var cell = tableView.dequeueReusableCellWithIdentifier(cellId)
+        // Try to recycle a cell of the proper type.
+        // If not possible, create a new one with the .subtitle style.
+        var cell = tableView.dequeueReusableCell(withIdentifier: cellId)
         
         if cell == nil {
-            cell = UITableViewCell(style: .Subtitle, reuseIdentifier: cellId)
+            cell = UITableViewCell(style: .subtitle, reuseIdentifier: cellId)
         }
         
-        
-        // Cargar los datos del libro en la celda:
-        // ( título -> título del libro, subtítulo -> autor(es) )
-        
+        // Load the book data into the cell:
+        // ( first line: book title, second line: author(s) )
         cell?.textLabel?.text = book.title
         cell?.detailTextLabel?.text = book.authorsToString()
         
         
-        // Devolver la celda construida
         return cell!
     }
     
     
-    // Título para las secciones de la tabla (el nombre de cada categoría, incluyendo la de favoritos y el número de libros que contiene)
-    override func tableView(tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+    // Title for a given section
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         
-        if let sectionName = model.getTag(atSectionPos: section)?.name.capitalizedString {
+        if let sectionName = model.getTag(atSectionPos: section)?.name.capitalized {
             
             let sectionCount = model.bookCount(forSectionPos: section)
-            
             return sectionName + " (\(sectionCount))"
         }
         
         return nil
-        
-        // return model.getTag(atSectionPos: section)?.name + " (\(model.bookCount(forSectionPos: section)))"
     }
     
     
     
-    //MARK: Eventos del ciclo de vida de la vista
+    //MARK: View life cycle events
     
-    // Tareas tras crearse el controlador (se invocan una sola vez)
-    
+    // Tasks to do after the controller is created (invoked once)
     override func viewDidLoad() {
         
         super.viewDidLoad()
         
+        // Suscribe the controller to notifications
+        let nc = NotificationCenter.default
         
-        // Suscripción de este controlador a las notificaciones
-        
-        let nc = NSNotificationCenter.defaultCenter()
-        
+        // When a book changes its favorite status
         nc.addObserver(self,
                        selector: #selector(favoriteDidChange),
-                       name: FavoriteDidChangeNotification,
-                       object: nil)                                 // con objetct: nil --> a todas las notificaciones
-        
-        // (para cuando se actualiza la url de la portada de un libro)
-        nc.addObserver(self,
-                       selector: #selector(coverUrlUpdated),
-                       name: CoverUrlUpdatedNotification,
+                       name: NSNotification.Name(rawValue: FavoriteDidChangeNotification),
                        object: nil)
         
-        // (para cuando se actualiza la url de la portada de un libro)
+        // When a book updates its cover url
+        nc.addObserver(self,
+                       selector: #selector(coverUrlUpdated),
+                       name: NSNotification.Name(rawValue: CoverUrlUpdatedNotification),
+                       object: nil)
+        
+        // When a book updates its pdf url
         nc.addObserver(self,
                        selector: #selector(pdfUrlUpdated),
-                       name: PdfUrlUpdatedNotification,
+                       name: NSNotification.Name(rawValue: PdfUrlUpdatedNotification),
                        object: nil)
     }
     
     
+    //MARK: Auxiliary functions
     
-    //MARK: Otras funciones auxiliares
-    
-    // Función para buscar un libro concreto en la libería a partir de un NSIndexPath
-    func getBook(forIndexPath indexPath: NSIndexPath) -> CDABook {
+    // Get a specific book in the library from a given NSIndexPath
+    func getBook(forIndexPath indexPath: IndexPath) -> CDABook {
         
-        // Obtenemos la sección (el tag) y la fila a buscar
-        let sectionNum = indexPath.section
-        let rowNum = indexPath.row
+        let sectionNum = (indexPath as NSIndexPath).section
+        let rowNum = (indexPath as NSIndexPath).row
         
         let book = model.getBook(atPosition: rowNum, inSection: sectionNum)
         
-        // Asumimos que el libro buscado existe, en caso contrario la app cascará
-        // (en ese caso, hay algo mal hecho)
         return book!
     }
     
-    
-    // Función que se ejecuta cuando se recibe una notificación de cambio de favorito en un libro
-    func favoriteDidChange(notification: NSNotification) {
+    // What to do when a notification of favorite changed is received
+    func favoriteDidChange(_ notification: Notification) {
         
-        print("\nTableViewController recibió una notificación de cambio de favorito")
+        print("\nTableViewController received a notification of favorite changed")
         
-        // Obtener el libro que ha sido añadido/eliminado de favoritos
-        let info = notification.userInfo!
+        let info = (notification as NSNotification).userInfo!
         let book = info[FavoriteDidChangeKey] as? CDABook
         
-        // Actualizar el modelo
         model.toggleFavorite(book!)
         
-        // Serializar el modelo actualizado
         do {
             try model.saveToFile()
         }
         catch {
-            print("\n** ERROR: no pudo guardarse el fichero JSON en la Sandbox **")
+            print("\n** ERROR: failed to save the JSON file in the sandbox **")
         }
         
-        
-        
-        // Refrescar el contenido de la tabla
+        // Refresh the table to show the changes
         self.tableView.reloadData()
     }
     
-    
-    // Función que se ejecuta cuando se recibe una notificación de actualización de la url de la portada de un libro
-    func coverUrlUpdated(notification: NSNotification) {
+    // What to do when a notification of cover url updated is received
+    func coverUrlUpdated(_ notification: Notification) {
         
-        print("\nTableViewController recibió una notificación de actualización de una url de portada")
+        print("\nTableViewController received a notification of cover url updated")
         
-        // Serializar el modelo actualizado
         do {
             try model.saveToFile()
         }
         catch {
-            print("\n** ERROR: no pudo guardarse el fichero JSON en la Sandbox **")
+            print("\n** ERROR: failed to save the JSON file in the sandbox **")
         }
     }
     
-    
-    // Función que se ejecuta cuando se recibe una notificación de actualización de la url del pdf de un libro
-    func pdfUrlUpdated(notification: NSNotification) {
+    // What to do when a notification of pdf url updated is received
+    func pdfUrlUpdated(_ notification: Notification) {
         
-        print("\nTableViewController recibió una notificación de actualización de una url de pdf")
+        print("\nTableViewController received a notification of pdf url updated")
         
-        // Serializar el modelo actualizado
         do {
             try model.saveToFile()
         }
         catch {
-            print("\n** ERROR: no pudo guardarse el fichero JSON en la Sandbox **")
+            print("\n** ERROR: failed to save the JSON file in the sandbox **")
         }
     }
     
@@ -254,27 +220,26 @@ class CDALibraryTableViewController: UITableViewController {
 }
 
 
-//MARK: Definición del protocolo del delegado para este controlador
+//MARK: delegate protocol for this controller
 
+// Definition of the protocol
 protocol CDALibraryTableViewControllerDelegate {
     
-    func cdaLibraryTableViewController(vc: CDALibraryTableViewController, didSelectBook book: CDABook)
+    func delegateAction(_ vc: CDALibraryTableViewController, didSelectBook book: CDABook)
 }
 
 
+//MARK: Extensions
 
-//MARK: Hacemos que el propio CDATableViewController implemente el protocolo CDALibraryTableViewControllerDelegate
-//      (para funcionar como su propio delegado cuando no estemos en un iPad y no se pueda usar un SplitVC)
-
+// We make the CDATableViewController implement its own delegate protocol
+// (so that it can act as its own delegate when we are not using iPad hardware and the SplitViewController is not available)
 extension CDALibraryTableViewController: CDALibraryTableViewControllerDelegate {
     
-    // Crear un nuevo BookVC con los datos del nuevo libro seleccionado y mostrarlo
-    func cdaLibraryTableViewController(vc: CDALibraryTableViewController, didSelectBook book: CDABook) {
+    func delegateAction(_ vc: CDALibraryTableViewController, didSelectBook book: CDABook) {
         
+        // Create a new Book view controller to show the data of the selected book, and navigate to it
         let bookVC = CDABookViewController(forBook: book)
         self.navigationController?.pushViewController(bookVC, animated: true)
     }
-    
 }
-
 

@@ -19,39 +19,36 @@ let CoverUrlUpdatedKey = "CoverUrlUpdated"
 
 class CDABookViewController: UIViewController {
 
-    //MARK: Propiedades de la clase
-    
     var model: CDABook
     
     
-    // Referencia a los objetos de la interfaz
+    // Reference to UI elements
     @IBOutlet weak var authorName: UILabel!
     @IBOutlet weak var tagList: UILabel!
     @IBOutlet weak var bookImage: UIImageView!
     @IBOutlet weak var favoriteStatus: UILabel!
     
     
-    //MARK: Inicializadores de la clase
+    //MARK: Class initializers
     
-    // Inicializador designado
+    // Designated initializer
     init(forBook model: CDABook) {
         
         self.model = model
         super.init(nibName: "CDABookViewController", bundle: nil)
     }
     
-    // Inicializador requerido para el uso de UIKit en Swift
+    // Required initializer to use UIKit in Swift
     required init?(coder aDecoder: NSCoder) {
         
         fatalError("init(coder:) has not been implemented")
     }
     
     
-    //MARK: Otros métodos de la clase
+    //MARK: Auxiliary methods
     
-    // Función para actualizar la vista con los datos del modelo
-    // (opcionalmente, se actualizará también la portada del libro)
-    
+    // Updates the view with the model data
+    // (optionally, the cover image will be updated too)
     func syncModelWithView(includingCover syncCover: Bool) {
         
         title = model.title
@@ -63,11 +60,6 @@ class CDABookViewController: UIViewController {
 
             syncCoverImage()
         }
-        else {
-            
-            // bookImage.image = UIImage(named: "book_cover.png")!
-        }
- 
         
         if model.isFavorite {
             favoriteStatus.text = "Yes"
@@ -77,118 +69,100 @@ class CDABookViewController: UIViewController {
         }
     }
     
-    
-    // Función que actualiza la portada del libro en pantalla
-    
+    // Updates the cover image on screen
     func syncCoverImage() {
         
+        print("\nLoading cover image from: \(model.coverUrl)...")
         
-        print("\nCargando portada de: \(model.coverUrl)...")
-        
-        // Obtenemos la imagen de la url del modelo (sin preocuparnos si es local o remota)
         guard let coverImage = model.getCoverImage() else {
             return
         }
         
-        
         bookImage.image = coverImage
         
         
-        // Si no es una url local, guardamos la imagen obtenida en el sandbox, y actualizamos la url del modelo
-        
+        // If the url used is a remote url, save the image in the sandbox and update the model with a local url
         if !model.isLocalCoverUrl() {
             
-            print("\nLa ruta del fichero es remota, convirténdola en local...")
+            print("\nSaving remote image for future use...")
             
-            // Ruta en la que almacenar el fichero
             let dirNameImages = "Images"
-            let documentsDir = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)[0]
+            let documentsDir = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
             let fileName = model.getFileName(fromUrl: model.coverUrl)
             
             let relativePath = "/" + fileName
             let fullPath = documentsDir + "/" + dirNameImages + relativePath
             
-            
-            // Convertir el UIImage en NSData y guardarlo en la sandbox
             guard let imageData = UIImageJPEGRepresentation(coverImage, 1.0) else {
                 return
             }
             
-            imageData.writeToFile(fullPath, atomically: true)
+            try? imageData.write(to: URL(fileURLWithPath: fullPath), options: [.atomic])
             
+            model.coverUrl = URL(fileURLWithPath: fullPath)
             
-            // Actualizar la url del modelo
-            model.coverUrl = NSURL(fileURLWithPath: fullPath)
-            
-            
-            // Enviar una notficación al TableViewController para que salve los cambios en la librería
-            let nc = NSNotificationCenter.defaultCenter()
+            // Send a notification to the TableViewController (to persist the changes)
+            let nc = NotificationCenter.default
             
             let notifName = CoverUrlUpdatedNotification
             let notifObject = self
             let notifUserInfo = [CoverUrlUpdatedKey: model]
-            let notif = NSNotification(name: notifName, object: notifObject, userInfo: notifUserInfo)
+            let notif = Notification(name: Notification.Name(rawValue: notifName), object: notifObject, userInfo: notifUserInfo)
             
-            nc.postNotification(notif)
+            nc.post(notif)
         }
         
     }
     
     
+    //MARK: Events from UI elements
     
-    //MARK: Eventos desde los objetos de la interfaz
-    
-    // Añadir/eliminar el libro de Favoritos
-    @IBAction func toggleFavorite(sender: AnyObject) {
+    // Add/remove book from favorites
+    @IBAction func toggleFavorite(_ sender: AnyObject) {
         
-        print("\nSe modificó el status de favorito del libro actual")
+        print("\nChanging favorite status of the current book...")
         
         model.isFavorite = !model.isFavorite
         syncModelWithView(includingCover: false)
         
-        // Enviar una notificación para que el LibraryTableViewController refleje el cambio
-        let nc = NSNotificationCenter.defaultCenter()
+        // Send a notification to the LibraryTableViewController to show the changes in the book list
+        let nc = NotificationCenter.default
         
         let notifName = FavoriteDidChangeNotification
         let notifObject = self
         let notifUserInfo = [FavoriteDidChangeKey: model]
-        let notif = NSNotification(name: notifName, object: notifObject, userInfo: notifUserInfo)
+        let notif = Notification(name: Notification.Name(rawValue: notifName), object: notifObject, userInfo: notifUserInfo)
         
-        nc.postNotification(notif)
+        nc.post(notif)
     }
     
-    // Mostrar el PDF del libro
-    @IBAction func showPdf(sender: AnyObject) {
+    // Show the PDF
+    @IBAction func showPdf(_ sender: AnyObject) {
         
-        // Crear un SimplePDFViewController con los datos del modelo
+        // Create a new SimplePDFViewController with the model, then push it to the NavigatorController
         let pdfVC = CDASimplePDFViewController(forBook: model)
-        
-        // Hacer un push sobre mi NavigatorController
         navigationController?.pushViewController(pdfVC, animated: true)
     }
     
     
-    //MARK: Eventos del ciclo de vida de la vista
+    //MARK: View life cycle events
     
-    // Tareas tras crearse el controlador (se invocan una sola vez)
-    
+    // Tasks to do after the controller is created (invoked once)
     override func viewDidLoad() {
         
         super.viewDidLoad()
     }
     
-    
-    // Tareas cuando se va a mostrar la vista en pantalla (se invocan una o más veces)
-    
-    override func viewWillAppear(animated: Bool) {
+    // Tasks to do just before the view is shown (could be invoked more than once)
+    override func viewWillAppear(_ animated: Bool) {
         
         super.viewWillAppear(animated)
         
         syncModelWithView(includingCover: false)
     }
     
-    
-    override func viewDidAppear(animated: Bool) {
+    // Tasks to do right after the view is shown (could be invoked more than once)
+    override func viewDidAppear(_ animated: Bool) {
         
         super.viewDidAppear(animated)
         
@@ -199,22 +173,20 @@ class CDABookViewController: UIViewController {
 
 
 
-//MARK: Implementación del protocolo CDALibraryTableViewControllerDelegate
-//      (para cuando se selecciona un libro en la tabla)
+//MARK: Extensions
 
+// Implementation of the CDALibraryTableViewControllerDelegate protocol
+// (to update the book detail when another book is selected in the list)
 extension CDABookViewController: CDALibraryTableViewControllerDelegate {
     
-    // Actualizar el modelo y la vista con el nuevo libro seleccionado
-    func cdaLibraryTableViewController(vc: CDALibraryTableViewController, didSelectBook book: CDABook) {
+    func delegateAction(_ vc: CDALibraryTableViewController, didSelectBook book: CDABook) {
         
-        print("\nDelegado BookViewController actualizando los detalles del nuevo libro seleccionado...")
+        print("\nDelegate BookViewController updating the detail of the selected book...")
         
         model = book
         
         syncModelWithView(includingCover: false)
         syncCoverImage()
     }
-    
 }
-
 

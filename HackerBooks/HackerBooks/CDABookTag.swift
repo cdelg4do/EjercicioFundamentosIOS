@@ -7,7 +7,7 @@
 //
 
 //
-//  Clase CDABookTag para los tags de los libros
+//  Clase CDABookTag to represent a book tag
 //
 
 
@@ -16,35 +16,28 @@ import Foundation
 
 class CDABookTag: Comparable {
     
-    // Propiedades de la clase
     let name: String
     
     
-    // Inicializador designado de la clase
-    
+    // Designated initializer
     init(name: String) {
         
         self.name = name
     }
     
-    
-    
-    // Función de clase que devuelve un objeto tag de Favoritos
+    // Returns the tag for Favorites
     static func getFavTag() -> CDABookTag {
         
         return CDABookTag(name: "My Favorites")
     }
     
-    
-    // Proxys para comparación y ordenación de tags (alfabéticamente por su nombre)
-    
+    // Proxies for tag comparison and tag sorting, by tag name
     var proxyForComparison: String {
         
         get {
             return name
         }
     }
-    
     
     var proxyForSorting: String {
         
@@ -55,8 +48,7 @@ class CDABookTag: Comparable {
 }
 
 
-// Sobrecarga de operadores para el protocolo Comparable
-
+// Operator overload for the Comparable protocol
 func == (left: CDABookTag, right: CDABookTag) -> Bool {
     
     guard (left !== right) else {
@@ -66,16 +58,16 @@ func == (left: CDABookTag, right: CDABookTag) -> Bool {
     return left.proxyForComparison == right.proxyForComparison
 }
 
-
 func < (left: CDABookTag, right: CDABookTag) -> Bool {
     
     return left.proxyForComparison < right.proxyForComparison
 }
 
 
-// Extensión para implementar el protocolo Hashable,
-// necesario para poder construir arrays de (CDABookTag : Int)
+//MARK: Extensions
 
+// Extension to implement the Hashable protocol
+// (needed to build arrays of pairs (CDABookTag : Int)
 extension CDABookTag: Hashable {
     
     var hashValue: Int {
@@ -87,9 +79,8 @@ extension CDABookTag: Hashable {
 }
 
 
-// Extensión para poder transformar el objeto en una cadena
-// (protocolo CustomStringConvertible, heredado de NSObject)
-
+// Extension to implement the CustomStringConvertible protocol, inherited from NSObject
+// (useful for debugging, to transform the object into a String in the form "'tag name')"
 extension CDABookTag: CustomStringConvertible {
     
     var description: String {

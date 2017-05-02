@@ -6,15 +6,15 @@
 //  Copyright © 2016 CDA. All rights reserved.
 //
 
+// This file contains the definition of errors that can be thrown during the execution
+// (all derived from Error, so that they can be returned with throw)
+
 import Foundation
 
 
-// MARK: JSON Errors
+//MARK: errors that can be thrown while processing a JSON file
 
-// Definiciones de los diferentes errores al procesar un fichero JSON
-// (derivados de ErrorType para poder devolverlos con un throw)
-
-enum JsonError: ErrorType {
+enum JsonError: Error {
     
     case wrongURLFormatForJSONResource
     case resourcePointedByURLNotReachable
@@ -25,7 +25,9 @@ enum JsonError: ErrorType {
 }
 
 
-enum FilesystemError: ErrorType {
+//MARK: errors that can be thrown while accessing the file system
+
+enum FilesystemError: Error {
     
     case unableToCreateCacheFolders
 }
