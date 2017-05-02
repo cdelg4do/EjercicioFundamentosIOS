@@ -1,6 +1,6 @@
 # HackerBooks
 
-This is a prototype of an ebook reader for iOS devices (adapted both to iPhone and iPad), made in Swift 2.2.
+This is a prototype of an ebook reader for iOS devices (adapted both to iPhone and iPad), made in Swift 3.
 
 Every time the app starts, it loads a list of available books from a JSON file stored in the internal storage. In case it is the first time it is being executed, the JSON will be downloaded from <a href="https://t.co/K9ziV0z3SJ">this URL</a>.
 
